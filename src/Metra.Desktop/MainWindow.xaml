@@ -1,0 +1,283 @@
+﻿<Window x:Class="Metra.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Metra.Desktop"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Metra - Ijaraga Boshqaruv Tizimi"
+        Height="768"
+        Width="1366"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="{DynamicResource MaterialDesign.Brush.Background}"
+        FontFamily="{materialDesign:MaterialDesignFont}"
+        TextElement.Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto">
+
+    <materialDesign:DialogHost Identifier="RootDialog">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top AppBar -->
+            <materialDesign:ColorZone Grid.Row="0"
+                                      Mode="PrimaryMid"
+                                      Padding="16"
+                                      materialDesign:ElevationAssist.Elevation="Dp4">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Domain"
+                                                Width="32"
+                                                Height="32"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,12,0"/>
+                        <TextBlock Text="METRA"
+                                  FontSize="24"
+                                  FontWeight="Bold"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="v3.0"
+                                  FontSize="12"
+                                  VerticalAlignment="Bottom"
+                                  Margin="8,0,0,4"
+                                  Opacity="0.7"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                               HorizontalAlignment="Right"
+                               DockPanel.Dock="Right">
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                               ToolTip="Sozlamalar"
+                               Margin="8,0">
+                            <materialDesign:PackIcon Kind="Settings"/>
+                        </Button>
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                               ToolTip="Chiqish"
+                               Margin="8,0">
+                            <materialDesign:PackIcon Kind="Logout"/>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </materialDesign:ColorZone>
+
+            <!-- Main Content Area -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Navigation Menu -->
+                <Border Grid.Column="0"
+                       Background="{DynamicResource MaterialDesign.Brush.Card.Background}"
+                       BorderBrush="{DynamicResource MaterialDesign.Brush.Divider}"
+                       BorderThickness="0,0,1,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,8">
+                            <ListBoxItem>
+                                    <TextBlock Text="Bosh sahifa" Style="{StaticResource NavTextBlockStyle}" Foreground="Black"/>
+                            </ListBoxItem>
+                            <Expander Style="{StaticResource NavigationExpanderStyle}">
+                                <Expander.Header>
+                                    <TextBlock Style="{StaticResource NavTextBlockStyle}" Text="Ma'lumotalar"/>
+                                </Expander.Header>
+                                <ListBox x:Name="NavigationListBox" Style="{StaticResource MaterialDesignNavigationListBox}">
+                                    <ListBoxItem Style ="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Mijozlar"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style ="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Materiallar chiqim sababi"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Asosiy kategoriyalar"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Ichki kategoriyalar"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Shartnomani bekor qilish sabablari"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Kassadan ch/q sababi"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Mijozlar"/>
+                                    </ListBoxItem>
+
+                                    <ListBoxItem Style="{StaticResource NavListBoxItemStyle}">
+                                        <TextBlock Text="Materiallar"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Expander>
+                            <Expander Style="{StaticResource NavigationExpanderStyle}">
+                                <Expander.Header>
+                                    <TextBlock Text="Hujjatlari" Style="{StaticResource NavTextBlockStyle}"/>
+                                </Expander.Header>
+                                <ListBox Style="{StaticResource MaterialDesignNavigationListBox}"
+                                         ItemContainerStyle="{StaticResource NavListBoxItemStyle}">
+                                    <ListBoxItem>
+                                            <TextBlock Text="Materialga kunlik narx belgilash"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                            <TextBlock Text="Ilova materiallari"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Bannerlar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Ilovadan kelgan buyurtmalar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Shartnomalar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Bekor qilingan shartnomalar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Kassadan chiqim(filial)"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Kassaga kirim qilish"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Expander>
+                            <Expander Style="{StaticResource NavigationExpanderStyle}">
+                                <Expander.Header>
+                                    <TextBlock Text="Hisobotlar" Style="{StaticResource NavTextBlockStyle}"/>
+                                </Expander.Header>
+                                <ListBox Style="{StaticResource MaterialDesignNavigationListBox}"
+                                         ItemContainerStyle="{StaticResource NavListBoxItemStyle}">
+                                    <ListBoxItem>
+                                        <TextBlock Text="Umumiy hisobot"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Materiallar (Xisobda)"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Materiallar (Mijozda)"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Materiallar (Omborda)"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Kassa hisoboti naqd"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Kassa hisoboti karta"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Pul harakatlari"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Material harakatlari"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Materiallar kirim hisoboti"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Expander>
+                            <Expander Style="{StaticResource NavigationExpanderStyle}">
+                                <Expander.Header>
+                                    <TextBlock Text="Ombor" Style="{StaticResource NavTextBlockStyle}"/>
+                                </Expander.Header>
+                                <ListBox Style="{StaticResource MaterialDesignNavigationListBox}"
+                                         ItemContainerStyle="{StaticResource NavListBoxItemStyle}">
+                                    <ListBoxItem>
+                                        <TextBlock Text="Filial omboriga kirim qilingan materiallar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Yuk beruvchidan kirim qilish"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Yuk beruvchilarga to'lov"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Materialni xisobdan chiqarish"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Material chiqarish"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Material qabul qilish"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Pul chiqarish"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Pul qabul qilish"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Expander>
+                            <Expander Style="{StaticResource NavigationExpanderStyle}">
+                                <Expander.Header>
+                                    <TextBlock Text="Xodimlar" Style="{StaticResource NavTextBlockStyle}"/>
+                                </Expander.Header>
+                                <ListBox Style="{StaticResource MaterialDesignNavigationListBox}"
+                                         ItemContainerStyle="{StaticResource NavListBoxItemStyle}">
+                                    <ListBoxItem>
+                                        <TextBlock Text="Permession kategoriyalari"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Sub permession kategoriyalari"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Sub permession"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Rolelar"/>
+                                    </ListBoxItem>
+                                    <ListBoxItem>
+                                        <TextBlock Text="Foydalanuvchilar"/>
+                                    </ListBoxItem>
+                                </ListBox>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <!-- Content Area -->
+                <Grid Grid.Column="1">
+                    <ContentControl x:Name="ContentArea">
+                        <!-- Welcome Screen -->
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Domain"
+                                                        Width="128"
+                                                        Height="128"
+                                                        Opacity="0.3"
+                                                        HorizontalAlignment="Center"/>
+                                <TextBlock Text="Metra Ijaraga Boshqaruv Tizimi"
+                                          FontSize="32"
+                                          FontWeight="Light"
+                                          Margin="0,24,0,8"
+                                          HorizontalAlignment="Center"/>
+                                <TextBlock Text="Versiya 3.0"
+                                          FontSize="16"
+                                          Opacity="0.6"
+                                          HorizontalAlignment="Center"/>
+                                <TextBlock Text="Clean Architecture + MVVM"
+                                          FontSize="14"
+                                          Opacity="0.4"
+                                          Margin="0,16,0,0"
+                                          HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </ContentControl>
+                </Grid>
+            </Grid>
+        </Grid>
+    </materialDesign:DialogHost>
+</Window>
