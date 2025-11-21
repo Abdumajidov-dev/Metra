@@ -19,7 +19,7 @@
     </UserControl.Resources>
     <Grid Background="{StaticResource BackgroundColor}">
         <!-- Loading Overlay -->
-        <!--<Border Background="#80000000"
+        <Border Background="#80000000"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}"
                 Panel.ZIndex="999">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -33,7 +33,7 @@
                            Margin="0,20,0,0"
                            HorizontalAlignment="Center"/>
             </StackPanel>
-        </Border>-->
+        </Border>
 
         <!-- Main Content -->
         <Grid Margin="20" >
@@ -62,22 +62,6 @@
                                            Margin="8,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource IconButtonStyle}"
-                                Command="{Binding OpenEditDialogCommand}"
-                                ToolTip="Tahrirlash"
-                                Margin="0,0,10,0">
-                            <materialDesign:PackIcon Kind="Pencil"
-                                                     Width="20" Height="20"/>
-                        </Button>
-
-                        <Button Style="{StaticResource IconButtonStyle}"
-                                Command="{Binding DeleteFilialCommand}"
-                                ToolTip="O'chirish"
-                                Margin="0,0,10,0">
-                            <materialDesign:PackIcon Kind="Delete"
-                                                     Width="20" Height="20"/>
                         </Button>
 
                         <Button Style="{StaticResource IconButtonStyle}"
@@ -118,7 +102,9 @@
             <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}">
                 <DataGrid ItemsSource="{Binding Filials}"
                           Style="{StaticResource StandardDataGridStyle}"
-                          SelectedItem="{Binding SelectedFilial}">
+                          SelectedItem="{Binding SelectedFilial}"
+                          MouseDoubleClick="DataGrid_MouseDoubleClick"
+                          MouseRightButtonUp="DataGrid_MouseRightButtonUp">
 
                     <DataGrid.Columns>
                         <!-- # -->
@@ -158,6 +144,95 @@
                 </DataGrid>
             </Border>
         </Grid>
+
+        <!-- Context Menu (O'chirish uchun) -->
+        <Border Background="#80000000"
+                Visibility="{Binding IsContextMenuOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+                Panel.ZIndex="999"
+                MouseLeftButtonDown="ContextMenuOverlay_MouseLeftButtonDown">
+            <Border Background="{StaticResource BackgroundColor}"
+                    BorderBrush="{StaticResource HeaderColor}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="15"
+                    Width="250"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+                <StackPanel>
+                    <!-- Sarlavha -->
+                    <TextBlock Text="Filialni o'chirish"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource HeaderColor}"
+                               Margin="0,0,0,15"/>
+
+                    <!-- Ma'lumot -->
+                    <TextBlock TextWrapping="Wrap"
+                               Foreground="{StaticResource TextBoxForegraund}"
+                               Margin="0,0,0,20">
+                        <Run Text=""/>
+                        <Run Text="{Binding SelectedFilial.Name, Mode=OneWay}" FontWeight="SemiBold"/>
+                        <Run Text=" filialini o'chirmoqchimisiz?"/>
+                    </TextBlock>
+
+                    <!-- Buttonlar -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Bekor qilish -->
+                        <Button Grid.Column="0"
+                                Style="{StaticResource OutlineButtonStyle}"
+                                Command="{Binding CloseContextMenuCommand}"
+                                Content="Bekor qilish"
+                                Height="35"/>
+
+                        <!-- O'chirish -->
+                        <Button Grid.Column="2"
+                                Command="{Binding DeleteFilialCommand}"
+                                Height="35"
+                                Background="#DC3545"
+                                Foreground="White"
+                                BorderThickness="0"
+                                FontWeight="SemiBold"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="5"
+                                                        Padding="10,5">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#C82333"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="Delete"
+                                                         Width="16" Height="16"
+                                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="O'chirish"
+                                           Margin="5,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Border>
 
         <!-- Add/Edit Dialog -->
         <Border Background="#80000000"

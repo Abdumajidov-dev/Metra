@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using Metra.Application.DTOs.Requests;
 using Metra.Application.DTOs.Responses;
@@ -25,6 +24,7 @@ public partial class FilialViewModel : ViewModelBase
     private string _searchText = string.Empty;
     private bool _isAddEditDialogOpen;
     private bool _isEditMode;
+    private bool _isContextMenuOpen;
     private string _dialogTitle = "Yangi filial qo'shish";
 
     // Dialog form fields
@@ -32,6 +32,11 @@ public partial class FilialViewModel : ViewModelBase
     private string _filialDescription = string.Empty;
     private string _filialType = "branch";
     private int _editingFilialId;
+
+    // Dastlabki qiymatlar (o'zgarishlarni tekshirish uchun)
+    private string _originalFilialName = string.Empty;
+    private string _originalFilialDescription = string.Empty;
+    private string _originalFilialType = "branch";
 
     public FilialViewModel(
         IFilialService filialService,
@@ -140,6 +145,15 @@ public partial class FilialViewModel : ViewModelBase
         set => SetProperty(ref _filialType, value);
     }
 
+    /// <summary>
+    /// Context menu ochiq/yopiq
+    /// </summary>
+    public bool IsContextMenuOpen
+    {
+        get => _isContextMenuOpen;
+        set => SetProperty(ref _isContextMenuOpen, value);
+    }
+
     #endregion
 
     #region Commands
@@ -199,6 +213,12 @@ public partial class FilialViewModel : ViewModelBase
         FilialName = string.Empty;
         FilialDescription = string.Empty;
         FilialType = "branch";
+
+        // Dastlabki qiymatlarni saqlash
+        _originalFilialName = string.Empty;
+        _originalFilialDescription = string.Empty;
+        _originalFilialType = "branch";
+
         IsAddEditDialogOpen = true;
     }
 
@@ -223,6 +243,12 @@ public partial class FilialViewModel : ViewModelBase
         FilialName = SelectedFilial.Name;
         FilialDescription = SelectedFilial.Description ?? string.Empty;
         FilialType = SelectedFilial.Type;
+
+        // Dastlabki qiymatlarni saqlash
+        _originalFilialName = SelectedFilial.Name;
+        _originalFilialDescription = SelectedFilial.Description ?? string.Empty;
+        _originalFilialType = SelectedFilial.Type;
+
         IsAddEditDialogOpen = true;
     }
 
@@ -232,6 +258,19 @@ public partial class FilialViewModel : ViewModelBase
     [RelayCommand]
     private void CloseDialog()
     {
+        // O'zgarishlar borligini tekshirish
+        if (HasChanges())
+        {
+            var result = System.Windows.MessageBox.Show(
+                "Siz o'zgarishlar qildingiz. Haqiqatdan chiqishni xohlaysizmi?",
+                "Ogohlantirish",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result != System.Windows.MessageBoxResult.Yes)
+                return;
+        }
+
         IsAddEditDialogOpen = false;
     }
 
@@ -302,6 +341,11 @@ public partial class FilialViewModel : ViewModelBase
 
             if (success)
             {
+                // Dastlabki qiymatlarni yangilash (yangi saqlangan qiymatlar bilan)
+                _originalFilialName = FilialName;
+                _originalFilialDescription = FilialDescription;
+                _originalFilialType = FilialType;
+
                 IsAddEditDialogOpen = false;
                 await LoadFilialsAsync();
             }
@@ -342,18 +386,10 @@ public partial class FilialViewModel : ViewModelBase
             return;
         }
 
-        var result = MessageBox.Show(
-            $"{SelectedFilial.Name} filialini o'chirmoqchimisiz?",
-            "Tasdiqlash",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
-        if (result != MessageBoxResult.Yes)
-            return;
-
         try
         {
             IsBusy = true;
+            IsContextMenuOpen = false; // Context menu'ni yopish
             _logger.LogInformation("Filial o'chirilmoqda: {Id}", SelectedFilial.Id);
 
             var success = await _filialService.DeleteAsync(SelectedFilial.Id);
@@ -400,6 +436,15 @@ public partial class FilialViewModel : ViewModelBase
         await LoadFilialsAsync();
     }
 
+    /// <summary>
+    /// Context menu'ni yopish
+    /// </summary>
+    [RelayCommand]
+    private void CloseContextMenu()
+    {
+        IsContextMenuOpen = false;
+    }
+
     #endregion
 
     #region Helper Methods
@@ -413,6 +458,28 @@ public partial class FilialViewModel : ViewModelBase
         {
             await LoadFilialsAsync();
         });
+    }
+
+    /// <summary>
+    /// Dialog'da o'zgarishlar borligini tekshirish
+    /// </summary>
+    private bool HasChanges()
+    {
+        // Filial nomi o'zgardimi
+        if (FilialName?.Trim() != _originalFilialName?.Trim())
+            return true;
+
+        // Ta'rif o'zgardimi
+        var currentDescription = FilialDescription?.Trim() ?? string.Empty;
+        var originalDescription = _originalFilialDescription?.Trim() ?? string.Empty;
+        if (currentDescription != originalDescription)
+            return true;
+
+        // Turi o'zgardimi
+        if (FilialType != _originalFilialType)
+            return true;
+
+        return false;
     }
 
     #endregion
