@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet:*)",
+      "Bash(dir /B /S srcMetra.DesktopViews 2)",
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(dir %APPDATA%Metralogs /B /O-D 2)",
+      "Bash(dir /B /S \"%APPDATA%\\Metra\" 2)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

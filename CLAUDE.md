@@ -10,45 +10,72 @@ Metra v3.0 is a rental management system (equipment/materials rental) built as a
 
 ## Technology Stack
 
-- **.NET 8.0** (net8.0-windows)
+- **.NET 8.0** (net8.0-windows for Desktop, net8.0 for class libraries)
+- **C# 12** (LangVersion: 12, Nullable Reference Types enabled, Implicit Usings enabled)
 - **WPF** with MVVM pattern
-- **CommunityToolkit.Mvvm** for MVVM helpers (ObservableObject, RelayCommand, AsyncRelayCommand)
-- **Microsoft.Extensions.DependencyInjection** for IoC container
-- **Microsoft.Extensions.Http** for HttpClientFactory
-- **Serilog** for structured logging (File and Console sinks)
+- **CommunityToolkit.Mvvm** 8.3.2 for MVVM helpers (ObservableObject, RelayCommand, AsyncRelayCommand)
+- **Microsoft.Extensions.DependencyInjection** 8.0.1 for IoC container
+- **Microsoft.Extensions.Http** 8.0.1 for HttpClientFactory
+- **Serilog** 4.1.0 for structured logging (File and Console sinks)
 - **MaterialDesignThemes** 5.1.0 and **Syncfusion WPF** 27.1.55 for UI
-- **Newtonsoft.Json** for JSON serialization
-- **FreeSpire.PDF** for PDF generation
-- **QRCoder** for QR code generation
-- **Notification.Wpf** for toast notifications
+- **Newtonsoft.Json** 13.0.3 for JSON serialization
+- **FreeSpire.PDF** 10.2.0 for PDF generation
+- **QRCoder** 1.6.0 for QR code generation
+- **Notification.Wpf** 8.0.0 for toast notifications
 
 ## Project Structure
 
 The solution follows Clean Architecture with 4 main layers:
 
 ```
-Metra.Desktop/              # Presentation Layer (WPF)
-├── Views/                  # XAML files
-├── ViewModels/            # ViewModels with presentation logic
-└── Converters/            # Value converters
-
-Metra.Application/         # Application Layer
-├── Services/              # Business services (Interfaces/ and Implementation/)
-├── DTOs/                  # Data Transfer Objects (Requests/ and Responses/)
-└── Validators/            # Input validation
-
-Metra.Domain/              # Domain Layer
-├── Entities/              # Domain models
-├── Enums/                 # Enumerations
-└── Exceptions/            # Custom exceptions
-
-Metra.Infrastructure/      # Infrastructure Layer
-├── API/                   # HTTP API clients and endpoints
-├── Persistence/           # Local storage (settings, cache)
-└── Logging/               # Logging configuration
+src/
+├── Metra.Desktop/              # Presentation Layer (WPF)
+│   ├── Views/                  # XAML files organized by module
+│   │   ├── Auth/
+│   │   ├── Mijozlar/
+│   │   ├── Shartnoma/
+│   │   └── [8 other modules]
+│   ├── ViewModels/            # ViewModels with presentation logic
+│   │   ├── Base/
+│   │   │   └── ViewModelBase.cs
+│   │   └── [module ViewModels]
+│   ├── Converters/            # Value converters
+│   │   ├── BoolToVisibilityConverter.cs
+│   │   └── DateTimeConverter.cs
+│   ├── App.xaml.cs           # DI container setup
+│   └── MainWindow.xaml       # Main application window
+│
+├── Metra.Application/         # Application Layer
+│   ├── Services/
+│   │   ├── Interfaces/       # Service contracts
+│   │   └── Implementation/   # Service implementations
+│   ├── DTOs/                 # Data Transfer Objects
+│   │   ├── Requests/
+│   │   └── Responses/
+│   └── Validators/           # Input validation
+│
+├── Metra.Domain/              # Domain Layer (no dependencies)
+│   ├── Entities/             # Domain models (Mijoz, Filial, etc.)
+│   ├── Enums/                # Business enumerations
+│   │   └── ShartnomStatus.cs (contains ShartnomStatus, TolovTuri, UserRole)
+│   └── Exceptions/           # Custom exceptions
+│       └── DomainException.cs (base + 4 derived exceptions)
+│
+└── Metra.Infrastructure/      # Infrastructure Layer
+    ├── API/
+    │   └── ApiConfig.cs      # API configuration constants
+    ├── Persistence/
+    │   └── Settings/
+    │       └── AppSettings.cs # JSON-based local settings
+    ├── Logging/
+    │   └── LoggingConfiguration.cs # Serilog setup
+    └── Services/
+        └── TokenService.cs   # Token management implementation
 ```
 
 ## Build and Run Commands
+
+**Requirements**: .NET 8.0 SDK or later (check with `dotnet --version`)
 
 ```bash
 # Restore dependencies
@@ -62,15 +89,28 @@ dotnet run --project src/Metra.Desktop/Metra.Desktop.csproj
 
 # Build for release
 dotnet build --configuration Release
+
+# Clean build artifacts
+dotnet clean
+
+# Build specific project
+dotnet build src/Metra.Desktop/Metra.Desktop.csproj
 ```
+
+**Platform Note**: This is a Windows-only application (WPF). Use Windows paths with backslashes (`\`) in commands when on Windows.
 
 ## API Configuration
 
-**Base URL**: `http://app.metra-rent.uz/api`
+**Base URL**: `http://app.metra-rent.uz/api/` (note: trailing slash required)
+**Image Base URL**: `http://app.metra-rent.uz/api/public/storage/`
 
-The API client configuration is located in `Metra.Infrastructure/API/ApiConfig.cs`. All HTTP clients are registered with HttpClientFactory in DI container with a 30-second default timeout.
+Configuration location: `src/Metra.Application/Configuration/ApiConfig.cs`
 
-**Authentication**: Bearer token (JWT) stored in encrypted local settings via `ITokenService`.
+All HTTP clients are registered with HttpClientFactory in DI container with a 60-second default timeout.
+
+**Authentication**: Bearer token (JWT) stored in local settings via `ITokenService` (using `AppSettings`).
+
+**Note**: The old `src/Metra.Infrastructure/API/ApiConfig.cs` is deprecated and redirects to the Application layer version.
 
 ## Core Modules
 
@@ -91,18 +131,33 @@ The application manages the following business domains:
 
 ### MVVM Implementation
 
+**Base Class**: `src/Metra.Desktop/ViewModels/Base/ViewModelBase.cs`
+
+ViewModelBase provides:
+- Inherits from `ObservableObject` (CommunityToolkit.Mvvm)
+- `IsBusy` property for loading states
+- `IsNotBusy` property (inverse of IsBusy) for enabling controls
+- `Title` property for page titles
+- `InitializeAsync()` for async initialization
+- `Cleanup()` for resource disposal
+
+**MVVM Rules:**
 - **ViewModels** inherit from `ViewModelBase` (or use `ObservableObject` from CommunityToolkit.Mvvm)
 - **Never** reference Views from ViewModels
 - **Views** only set `DataContext` - no business logic in code-behind
 - Use **Commands** (ICommand), not event handlers
 - Business logic belongs in **Services**, not ViewModels
 - Use `AsyncRelayCommand` for async operations
+- Use `ObservableCollection<T>` for collections that need UI updates
 
 ### Dependency Injection
 
+**Setup Location**: `src/Metra.Desktop/App.xaml.cs`
+
 All dependencies are constructor-injected. Service registration in `App.xaml.cs`:
 
-- **Singleton**: `INavigationService`, `IDialogService`, `ITokenService`, `NotificationManager`, most business services
+**Service Lifetimes:**
+- **Singleton**: `INavigationService`, `IDialogService`, `ITokenService`, `NotificationManager`, `AppSettings`, most business services
 - **Transient**: ViewModels, Views, Pages
 - **HttpClient**: Registered via `AddHttpClient<TInterface, TImplementation>()` with HttpClientFactory
 
@@ -118,6 +173,9 @@ public MijozListViewModel(
     _navigationService = navigationService;
     _logger = logger;
     _notifier = notifier;
+
+    // Initialize commands
+    LoadCommand = new AsyncRelayCommand(LoadDataAsync);
 }
 ```
 
@@ -128,6 +186,13 @@ All service methods should:
 2. Throw `ApplicationException` with user-friendly Uzbek messages for UI
 3. Never expose stack traces or internal errors to users
 4. Handle `HttpRequestException` separately for network errors
+
+**Available Domain Exceptions** (`src/Metra.Domain/Exceptions/DomainException.cs`):
+- `DomainException` (base class)
+- `NotFoundException` - Entity not found
+- `ValidationException` - Validation failed
+- `UnauthorizedException` - User not authenticated
+- `ForbiddenException` - User lacks permissions
 
 Example:
 ```csharp
@@ -170,11 +235,58 @@ catch (Exception ex)
 
 4. **Notifications**: Use `NotificationManager` (from Notification.Wpf) to show toast notifications for success/error messages.
 
-5. **Pagination**: API responses use `PaginatedResult<T>` with `Data`, `CurrentPage`, `LastPage`, `Total` properties.
+5. **Pagination**: API responses use `PaginatedResult<T>` with `Data`, `CurrentPage`, `LastPage`, `Total`, `From`, `To`, `PerPage` properties. For non-paginated responses, use `ResultNotPagination<T>` with `Success` and `Result` properties (note: API uses "resoult" typo in JSON).
 
-6. **Logging**: Logs are written to `logs/metra-.txt` with daily rolling interval. Use structured logging with Serilog.
+6. **Logging**:
+   - Configuration: `src/Metra.Infrastructure/Logging/LoggingConfiguration.cs`
+   - Logs written to: `%APPDATA%\Metra\logs\metra-YYYY-MM-DD.txt` (daily rolling interval)
+   - Use structured logging with Serilog
+   - Available levels: Debug, Information, Warning, Error
+   - Microsoft/System namespaces filtered to Information/Warning minimum
 
-7. **XAML Binding**: Always use `{Binding}` with `INotifyPropertyChanged` properly implemented. For collections, use `ObservableCollection<T>`.
+7. **Settings Storage**:
+   - Location: `%APPDATA%\Metra\settings.json`
+   - Implementation: `src/Metra.Infrastructure/Persistence/Settings/AppSettings.cs`
+   - Methods: `GetSetting<T>()`, `SetSetting<T>()`, `RemoveSetting()`
+
+8. **XAML Binding**: Always use `{Binding}` with `INotifyPropertyChanged` properly implemented. For collections, use `ObservableCollection<T>`.
+
+9. **Value Converters** (located in `src/Metra.Desktop/Converters/`):
+   - `BoolToVisibilityConverter` - true → Visible, false → Collapsed
+   - `InverseBoolToVisibilityConverter` - true → Collapsed, false → Visible
+   - `DateTimeConverter` - DateTime formatting
+
+## Domain Entities and Enums
+
+### Key Entities
+
+**Mijoz (Customer)** - `src/Metra.Domain/Entities/Mijoz.cs`:
+- Properties: Id, Name, Phone, Phone2, Address, PassportSeria, PassportNumber, FilialId, CreatedAt, UpdatedAt
+
+**Filial (Branch)** - `src/Metra.Domain/Entities/Filial.cs`:
+- Properties: Id, Name, Address, Phone, CreatedAt, UpdatedAt
+
+### Business Enums
+
+**Location**: `src/Metra.Domain/Enums/ShartnomStatus.cs`
+
+**ShartnomStatus** (Contract Status):
+- Active = 1
+- Cancelled = 2
+- Completed = 3
+- Pending = 4
+
+**TolovTuri** (Payment Type):
+- Naqd = 1 (Cash)
+- Karta = 2 (Card)
+- BankOtkazmo = 3 (Bank Transfer)
+- Aralash = 4 (Mixed)
+
+**UserRole**:
+- Admin = 1
+- Manager = 2
+- Cashier = 3
+- Warehouseman = 4
 
 ## Migration from v2.0
 
@@ -189,10 +301,12 @@ When refactoring existing code:
 - Replace event handlers with Commands
 - Register all dependencies in DI container
 
+See `REFACTORING_GUIDE.md` for detailed migration patterns.
+
 ## Security Considerations
 
-- **Token Storage**: Use encrypted local storage (not plain `Settings.Default`)
-- **HTTPS Only**: Production API calls must use HTTPS
+- **Token Storage**: Use encrypted local storage via AppSettings (not plain `Settings.Default`)
+- **HTTPS Only**: Production API calls must use HTTPS (currently HTTP in development)
 - **Input Validation**: Validate all user input before API calls
 - **Sensitive Data**: Never log passwords, tokens, or personal data
 - **Error Messages**: Show user-friendly messages in Uzbek; never expose stack traces
@@ -202,6 +316,34 @@ When refactoring existing code:
 ### Service Interface Pattern
 All services should have an interface in `Services/Interfaces/` and implementation in `Services/Implementation/` or dedicated folder.
 
+### API Response Format Variations
+
+The API uses two different response formats:
+
+**1. Paginated Response** (for list endpoints):
+```json
+{
+  "data": [...],
+  "current_page": 1,
+  "last_page": 5,
+  "total": 47,
+  "per_page": 10,
+  "from": 1,
+  "to": 10
+}
+```
+Use `PaginatedResult<T>` DTO.
+
+**2. Non-Paginated Response** (for single items/search):
+```json
+{
+  "success": true,
+  "failure": false,
+  "resoult": {...}  // Note: API has typo in field name
+}
+```
+Use `ResultNotPagination<T>` DTO with `[JsonPropertyName("resoult")]` attribute to handle the API typo. The DTO includes both `Success` and `failure` boolean properties.
+
 ### Pagination Pattern
 ```csharp
 public async Task<PaginatedResult<T>?> GetAll(int page = 1, string? search = null)
@@ -209,7 +351,9 @@ public async Task<PaginatedResult<T>?> GetAll(int page = 1, string? search = nul
     var url = $"/endpoint?page={page}";
     if (!string.IsNullOrEmpty(search))
         url += $"&search={Uri.EscapeDataString(search)}";
-    // ... API call
+
+    var response = await _httpClient.GetAsync(url);
+    // ... handle response
 }
 ```
 
@@ -222,9 +366,49 @@ public bool IsLoading
     get => _isLoading;
     set => SetProperty(ref _isLoading, value);
 }
+
+// In async method:
+IsLoading = true;
+try
+{
+    // ... load data
+}
+finally
+{
+    IsLoading = false;
+}
 ```
 
-Bind to loading overlay in XAML with `BoolToVisibilityConverter`.
+Bind to loading overlay in XAML:
+```xml
+<Grid Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+    <ProgressBar IsIndeterminate="True"/>
+</Grid>
+```
+
+### HttpClient with Token Pattern
+```csharp
+var token = await _tokenService.GetTokenAsync();
+_httpClient.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", token);
+
+var response = await _httpClient.GetAsync("/endpoint");
+```
+
+### Non-Paginated Response Pattern
+```csharp
+var response = await _httpClient.GetAsync("/endpoint");
+response.EnsureSuccessStatusCode();
+
+var content = await response.Content.ReadAsStringAsync();
+var result = JsonConvert.DeserializeObject<ResultNotPagination<T>>(content);
+
+if (result?.Success == true)
+{
+    return result.Result;
+}
+throw new ApplicationException("API xatolik qaytardi");
+```
 
 ## File Organization in C# Files
 
@@ -235,6 +419,70 @@ Bind to loading overlay in XAML with `BoolToVisibilityConverter`.
 5. Private fields
 6. Constructor(s)
 7. Properties
-8. Commands
+8. Commands (for ViewModels)
 9. Public methods
 10. Private methods
+
+## Application Startup Flow
+
+1. `App.xaml.cs` - `OnStartup()` executes:
+   - Registers Syncfusion license
+   - Configures Serilog logging via `LoggingConfiguration.ConfigureLogging()`
+   - Builds DI container with `ConfigureServices()`
+   - Creates and shows `MainWindow`
+
+2. Service Registration Order:
+   - Logging infrastructure
+   - Singletons (NotificationManager, AppSettings, TokenService, etc.)
+   - HttpClients with factory
+   - Transient services (ViewModels, Views)
+
+3. Navigation:
+   - MainWindow contains navigation frame/tabs
+   - NavigationService resolves ViewModels from DI container
+   - Views are created with ViewModel as DataContext
+
+## Development Workflow
+
+### Adding a New Module
+
+1. **Create Service Interface** in `Metra.Application/Services/Interfaces/`
+2. **Implement Service** in `Metra.Application/Services/Implementation/` or dedicated folder
+3. **Create DTOs** in `Metra.Application/DTOs/Requests/` and `Responses/`
+4. **Create Domain Entity** (if needed) in `Metra.Domain/Entities/`
+5. **Create ViewModel** in `Metra.Desktop/ViewModels/[Module]/`
+6. **Create View** in `Metra.Desktop/Views/[Module]/`
+7. **Register in DI** in `App.xaml.cs` ConfigureServices()
+8. **Add Navigation** in MainWindow menu
+
+### Testing a Module
+
+1. Build the solution
+2. Run the application
+3. Check logs at `%APPDATA%\Metra\logs\metra-[date].txt`
+4. Use NotificationManager for user feedback
+5. Monitor console output for Serilog messages
+
+### Service Registration Pattern in App.xaml.cs
+
+When adding new services, follow this registration pattern:
+
+```csharp
+// For services with HttpClient (most API services)
+services.AddHttpClient<IYourService, YourService>(client =>
+{
+    client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+    client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
+});
+
+// For ViewModels (always Transient)
+services.AddTransient<YourViewModel>();
+
+// For Views/Pages (always Transient)
+services.AddTransient<YourPage>();
+
+// For utility services without HTTP (decide lifetime based on state)
+services.AddSingleton<IUtilityService, UtilityService>(); // Stateless, shared
+// OR
+services.AddTransient<IUtilityService, UtilityService>(); // Stateful, per-use
+```

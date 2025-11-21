@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Metra.Application.DTOs.Responses;
 
 /// <summary>
@@ -12,4 +14,13 @@ public class PaginatedResult<T>
     public int Total { get; set; }
     public int From { get; set; }
     public int To { get; set; }
+}
+public class ResultNotPagination<T>
+{
+    [JsonPropertyName("success")]
+    public bool Success { get; set; }
+    [JsonPropertyName("failure")]
+    public bool failure { get; set; }
+    [JsonPropertyName("resoult")]
+    public T Result { get; set; } = default!;
 }

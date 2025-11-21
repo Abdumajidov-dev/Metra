@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Metra.Application.DTOs.Requests;
 
 /// <summary>
@@ -5,6 +7,8 @@ namespace Metra.Application.DTOs.Requests;
 /// </summary>
 public class LoginRequest
 {
-    public string Username { get; set; } = string.Empty;
+    [JsonPropertyName("phone")]
+    public string Phone { get; set; } = string.Empty;
+    [JsonPropertyName("password")]
     public string Password { get; set; } = string.Empty;
 }

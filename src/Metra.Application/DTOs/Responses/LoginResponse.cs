@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Metra.Application.DTOs.Responses;
 
 /// <summary>
@@ -5,9 +7,20 @@ namespace Metra.Application.DTOs.Responses;
 /// </summary>
 public class LoginResponse
 {
+    /// <summary>
+    /// Login muvaffaqiyatlimi?
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// JWT token
+    /// </summary>
     public string Token { get; set; } = string.Empty;
-    public string TokenType { get; set; } = "Bearer";
-    public UserInfo? User { get; set; }
+
+    /// <summary>
+    /// Foydalanuvchi ma'lumotlari
+    /// </summary>
+    public UserInfo? UserInfo { get; set; }
 }
 
 /// <summary>
@@ -15,10 +28,22 @@ public class LoginResponse
 /// </summary>
 public class UserInfo
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("token")]
+    public string Token { get; set; } = string.Empty;
+    [JsonPropertyName("username")]
     public string Username { get; set; } = string.Empty;
+    [JsonPropertyName("branch_id")]
+    public int BranchId { get; set; }
+    [JsonPropertyName("branch_name")]
+    public string BranchName { get; set; } = string.Empty;
+    [JsonPropertyName("branch_type")]
+    public string BranchType { get; set; } = string.Empty;
+    [JsonPropertyName("phone")]
+    public string Phone { get; set; } = string.Empty;
+    [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
-    public int? FilialId { get; set; }
-    public string? FilialName { get; set; }
+    [JsonPropertyName("roles")]
+    public List<string> Roles { get; set; } = new();
+    [JsonPropertyName("permissions")]
+    public List<string> Permissions { get; set; } = new();
 }

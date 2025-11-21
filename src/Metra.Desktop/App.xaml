@@ -11,10 +11,20 @@
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
 
+                <!-- Custom Styles -->
+                <ResourceDictionary Source="/Styles/Colors.xaml"/>
+                <ResourceDictionary Source="/Styles/BorderStyles.xaml"/>
+                <ResourceDictionary Source="/Styles/ButtonStyles.xaml"/>
+                <ResourceDictionary Source="/Styles/TextBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Styles/CommonStyles.xaml"/>
+
                 <!-- Main-->
                 <ResourceDictionary Source="/Styles/MainStyles/ListBoxItemStyles.xaml"/>
                 <ResourceDictionary Source="/Styles/MainStyles/NavTextBlockStyle.xaml"/>
                 <ResourceDictionary Source="/Styles/MainStyles/NavigationExpanderStyle.xaml"/>
+                
+                <!--Datagrid-->
+                <ResourceDictionary Source="/Styles/DataGridStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters -->

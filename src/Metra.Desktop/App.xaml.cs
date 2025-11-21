@@ -1,9 +1,12 @@
+using System.Net.Http;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using AppServices = Metra.Application.Services.Interfaces;
-using Metra.Infrastructure.API;
+using Metra.Application.Configuration;
+using Metra.Application.Services.Implementation;
+using Metra.Application.Services.Service;
 using Metra.Infrastructure.Logging;
 using Metra.Infrastructure.Persistence.Settings;
 using Metra.Infrastructure.Services;
@@ -18,11 +21,12 @@ namespace Metra.Desktop;
 public partial class App : System.Windows.Application
 {
     public static IServiceProvider ServiceProvider { get; private set; } = null!;
+    public static MainWindow? GlobalMainWindow { get; set; }
 
     protected override void OnStartup(StartupEventArgs e)
     {
         // Syncfusion license (TODO: Add your license key)
-        // SyncfusionLicenseProvider.RegisterLicense("YOUR_LICENSE_KEY");
+         SyncfusionLicenseProvider.RegisterLicense("MzUzODIyNUAzMjM3MmUzMDJlMzBMSUZBbU53aEdqelU3bWZjMXNoOVdoakI1aTNML0Fuek9WMVc5YloyNUtBPQ==");
 
         // Serilog setup
         Log.Logger = LoggingConfiguration.ConfigureLogging();
@@ -38,9 +42,9 @@ public partial class App : System.Windows.Application
 
             base.OnStartup(e);
 
-            // MainWindow ni ko'rsatish
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+            // LoginWindow ni ko'rsatish
+            var loginWindow = ServiceProvider.GetRequiredService<Views.LoginWindow>();
+            loginWindow.Show();
 
             Log.Information("Metra ilovasi muvaffaqiyatli ishga tushdi");
         }
@@ -74,12 +78,50 @@ public partial class App : System.Windows.Application
         // Application Services - Singleton
         services.AddSingleton<AppServices.ITokenService, TokenService>();
 
+        // AuthService with HttpClient factory
+        services.AddHttpClient<AppServices.IAuthService, AuthService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
+        });
+
+        // FakturaService with HttpClient factory
+        services.AddHttpClient<AppServices.IFakturaService, FakturaService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
+        });
+
+        // FilialService with HttpClient factory
+        services.AddHttpClient<AppServices.IFilialService, FilialService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
+
+            // HTTP headers (eski versiya bilan mos kelishi uchun)
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.AcceptEncoding.Add(
+                new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
+            client.DefaultRequestHeaders.AcceptEncoding.Add(
+                new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
+            client.DefaultRequestHeaders.AcceptLanguage.Add(
+                new System.Net.Http.Headers.StringWithQualityHeaderValue("en-US"));
+            client.DefaultRequestHeaders.AcceptLanguage.Add(
+                new System.Net.Http.Headers.StringWithQualityHeaderValue("en", 0.9));
+        })
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            AutomaticDecompression = System.Net.DecompressionMethods.GZip
+                                   | System.Net.DecompressionMethods.Deflate
+        });
+
         // TODO: Add more services
         // services.AddSingleton<INavigationService, NavigationService>();
         // services.AddSingleton<IDialogService, DialogService>();
-        // services.AddSingleton<IAuthService, AuthService>();
 
-        // HttpClient for API calls
+        // HttpClient for general API calls
         services.AddHttpClient("MetraApi", client =>
         {
             client.BaseAddress = new Uri(ApiConfig.BaseUrl);
@@ -87,12 +129,15 @@ public partial class App : System.Windows.Application
         });
 
         // ViewModels - Transient
-        // TODO: Add ViewModels
+        services.AddTransient<ViewModels.LoginViewModel>();
+        services.AddTransient<ViewModels.FilialViewModel>();
+        // TODO: Add more ViewModels
         // services.AddTransient<MainWindowViewModel>();
-        // services.AddTransient<LoginViewModel>();
 
         // Views/Windows - Transient
+        services.AddTransient<Views.LoginWindow>();
         services.AddTransient<MainWindow>();
+        services.AddTransient<Views.Pages.FilialPage>();
     }
 
     protected override void OnExit(ExitEventArgs e)
