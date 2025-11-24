@@ -117,9 +117,14 @@ public partial class App : System.Windows.Application
                                    | System.Net.DecompressionMethods.Deflate
         });
 
-        // TODO: Add more services
-        // services.AddSingleton<INavigationService, NavigationService>();
-        // services.AddSingleton<IDialogService, DialogService>();
+        // MijozService with HttpClient factory
+        services.AddHttpClient<AppServices.IMijozService, MijozService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiConfig.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
+        });
+
+        // Desktop Services yo'q - oddiy DI yetarli
 
         // HttpClient for general API calls
         services.AddHttpClient("MetraApi", client =>
@@ -128,16 +133,23 @@ public partial class App : System.Windows.Application
             client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
         });
 
-        // ViewModels - Transient
+        // ViewModels
         services.AddTransient<ViewModels.LoginViewModel>();
         services.AddTransient<ViewModels.FilialViewModel>();
-        // TODO: Add more ViewModels
-        // services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<ViewModels.MijozListViewModel>();
+        services.AddTransient<ViewModels.MijozFormViewModel>();
 
         // Views/Windows - Transient
         services.AddTransient<Views.LoginWindow>();
         services.AddTransient<MainWindow>();
+
+        // Pages - Transient (soddalashtirilgan)
+        services.AddTransient<Views.Pages.MijozListPage>();
         services.AddTransient<Views.Pages.FilialPage>();
+
+        // Dialog Windows - Transient (soddalashtirilgan)
+        services.AddTransient<Views.Windows.MijozFormWindow>();
+        services.AddTransient<Views.Windows.FilialAddEditWindow>();
     }
 
     protected override void OnExit(ExitEventArgs e)

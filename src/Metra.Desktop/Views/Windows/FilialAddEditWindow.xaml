@@ -1,0 +1,123 @@
+<Window x:Class="Metra.Desktop.Views.Windows.FilialAddEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="{Binding DialogTitle}"
+        Height="450"
+        Width="550"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundColor}"
+        ResizeMode="NoResize">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{StaticResource HeaderColor}"
+                Padding="20,15">
+            <Grid>
+                <TextBlock Text="{Binding DialogTitle}"
+                           Foreground="White"
+                           FontSize="18"
+                           FontWeight="SemiBold"/>
+
+                <Button Style="{StaticResource IconButtonStyle}"
+                        Click="CloseButton_Click"
+                        HorizontalAlignment="Right"
+                        Background="Transparent">
+                    <materialDesign:PackIcon Kind="Close"
+                                             Width="24" Height="24"
+                                             Foreground="White"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="20">
+            <StackPanel>
+                <!-- Filial nomi -->
+                <TextBlock Text="Filial nomi *"
+                           Style="{StaticResource LabelTextStyle}"
+                           Margin="0,0,0,8"/>
+                <TextBox Style="{StaticResource MaterialTextBoxStyle}"
+                         Text="{Binding FilialName, UpdateSourceTrigger=PropertyChanged}"
+                         materialDesign:HintAssist.Hint="Filial nomini kiriting"
+                         Margin="0,0,0,20"/>
+
+                <!-- Filial turi -->
+                <TextBlock Text="Filial turi *"
+                           Style="{StaticResource LabelTextStyle}"
+                           Margin="0,0,0,8"/>
+                <ComboBox SelectedValue="{Binding FilialType}"
+                          SelectedValuePath="Tag"
+                          materialDesign:HintAssist.Hint="Filial turini tanlang"
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          Margin="0,0,0,20">
+                    <ComboBoxItem Content="Asosiy" Tag="main"/>
+                    <ComboBoxItem Content="Asosiy ombor" Tag="general"/>
+                    <ComboBoxItem Content="Filial" Tag="branch" IsSelected="True"/>
+                    <ComboBoxItem Content="Ombor" Tag="store"/>
+                </ComboBox>
+
+                <!-- Ta'rif -->
+                <TextBlock Text="Ta'rif"
+                           Style="{StaticResource LabelTextStyle}"
+                           Margin="0,0,0,8"/>
+                <TextBox Style="{StaticResource MultilineTextBoxStyle}"
+                         Text="{Binding FilialDescription, UpdateSourceTrigger=PropertyChanged}"
+                         materialDesign:HintAssist.Hint="Filial haqida qo'shimcha ma'lumot"
+                         Height="100"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2"
+                BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="0,1,0,0"
+                Padding="20,15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource OutlineButtonStyle}"
+                        Content="Bekor qilish"
+                        Click="CancelButton_Click"
+                        Margin="0,0,10,0"
+                        Width="120"/>
+
+                <Button Style="{StaticResource PrimaryButtonStyle}"
+                        Click="SaveButton_Click"
+                        Width="120">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave"
+                                                 Width="18" Height="18"
+                                                 VerticalAlignment="Center"/>
+                        <TextBlock Text="Saqlash"
+                                   Margin="8,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="3"
+                Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}"
+                Panel.ZIndex="1000">
+            <Grid>
+                <ProgressBar IsIndeterminate="True"
+                             Width="200"
+                             Height="5"
+                             VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

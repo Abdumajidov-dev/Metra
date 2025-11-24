@@ -87,7 +87,7 @@
                                 <Expander.Header>
                                     <TextBlock Style="{StaticResource NavTextBlockStyle}" Text="Ma'lumotlar"/>
                                 </Expander.Header>
-                                <ListBox x:Name="NavigationListBox" Style="{StaticResource MaterialDesignNavigationListBox}">
+                                <ListBox x:Name="NavigationListBox" Style="{StaticResource MaterialDesignNavigationListBox}" SelectionChanged="NavigationListBox_SelectionChanged">
                                     <ListBoxItem Style ="{StaticResource NavListBoxItemStyle}">
                                         <TextBlock Text="Filiallar"/>
                                     </ListBoxItem>

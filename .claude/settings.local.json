@@ -7,7 +7,14 @@
       "Bash(nul)",
       "Bash(findstr:*)",
       "Bash(dir %APPDATA%Metralogs /B /O-D 2)",
-      "Bash(dir /B /S \"%APPDATA%\\Metra\" 2)"
+      "Bash(dir /B /S \"%APPDATA%\\Metra\" 2)",
+      "Bash(dir /B /S srcMetra.DesktopViewModels 2)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''src\\Metra.Desktop\\ViewModels'' -Name\")",
+      "Bash(powershell -Command \"(Get-Content ''src\\Metra.Desktop\\ViewModels\\MijozViewModel.cs'').Count\")",
+      "Bash(powershell -Command \"(Get-Content ''src\\Metra.Desktop\\ViewModels\\FilialViewModel.cs'').Count\")",
+      "Bash(powershell:*)",
+      "Bash(git restore:*)"
     ],
     "deny": [],
     "ask": []

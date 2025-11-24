@@ -275,103 +275,6 @@ public partial class FilialViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Filialni saqlash (qo'shish yoki tahrirlash)
-    /// </summary>
-    [RelayCommand]
-    private async Task SaveFilialAsync()
-    {
-        try
-        {
-            // Validatsiya
-            if (string.IsNullOrWhiteSpace(FilialName))
-            {
-                _notifier.Show(
-                    "Ogohlantirish",
-                    "Filial nomini kiriting",
-                    NotificationType.Warning);
-                return;
-            }
-
-            IsBusy = true;
-
-            bool success;
-
-            if (IsEditMode)
-            {
-                // Tahrirlash
-                var request = new FilialUpdateRequest
-                {
-                    Name = FilialName.Trim(),
-                    Description = string.IsNullOrWhiteSpace(FilialDescription) ? null : FilialDescription.Trim(),
-                    Type = FilialType
-                };
-
-                success = await _filialService.UpdateAsync(_editingFilialId, request);
-
-                if (success)
-                {
-                    _logger.LogInformation("Filial tahrirlandi: {Id}", _editingFilialId);
-                    _notifier.Show(
-                        "Muvaffaqiyat",
-                        "Filial muvaffaqiyatli tahrirlandi",
-                        NotificationType.Success);
-                }
-            }
-            else
-            {
-                // Yangi qo'shish
-                var request = new FilialCreateRequest
-                {
-                    Name = FilialName.Trim(),
-                    Description = string.IsNullOrWhiteSpace(FilialDescription) ? null : FilialDescription.Trim(),
-                    Type = FilialType
-                };
-
-                success = await _filialService.CreateAsync(request);
-
-                if (success)
-                {
-                    _logger.LogInformation("Yangi filial qo'shildi: {Name}", FilialName);
-                    _notifier.Show(
-                        "Muvaffaqiyat",
-                        "Filial muvaffaqiyatli qo'shildi",
-                        NotificationType.Success);
-                }
-            }
-
-            if (success)
-            {
-                // Dastlabki qiymatlarni yangilash (yangi saqlangan qiymatlar bilan)
-                _originalFilialName = FilialName;
-                _originalFilialDescription = FilialDescription;
-                _originalFilialType = FilialType;
-
-                IsAddEditDialogOpen = false;
-                await LoadFilialsAsync();
-            }
-            else
-            {
-                _notifier.Show(
-                    "Xatolik",
-                    "Filial saqlanmadi",
-                    NotificationType.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Filial saqlashda xatolik");
-            _notifier.Show(
-                "Xatolik",
-                "Filial saqlashda xatolik yuz berdi",
-                NotificationType.Error);
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    /// <summary>
     /// Filialni o'chirish
     /// </summary>
     [RelayCommand]
@@ -447,23 +350,145 @@ public partial class FilialViewModel : ViewModelBase
 
     #endregion
 
-    #region Helper Methods
+    #region Public Methods for External Use
 
     /// <summary>
-    /// Debounced qidiruv
+    /// Yangi filial qo'shish uchun tayyorlash (FilialAddEditWindow uchun)
     /// </summary>
-    private async Task SearchWithDebounceAsync()
+    public void PrepareForAdd()
     {
-        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
-        {
-            await LoadFilialsAsync();
-        });
+        IsEditMode = false;
+        DialogTitle = "Yangi filial qo'shish";
+        FilialName = string.Empty;
+        FilialDescription = string.Empty;
+        FilialType = "branch";
+
+        // Dastlabki qiymatlarni saqlash
+        _originalFilialName = string.Empty;
+        _originalFilialDescription = string.Empty;
+        _originalFilialType = "branch";
     }
 
     /// <summary>
-    /// Dialog'da o'zgarishlar borligini tekshirish
+    /// Filialni tahrirlash uchun tayyorlash (FilialAddEditWindow uchun)
     /// </summary>
-    private bool HasChanges()
+    public void PrepareForEdit(FilialResponse filial)
+    {
+        IsEditMode = true;
+        DialogTitle = "Filialni tahrirlash";
+        _editingFilialId = filial.Id;
+        FilialName = filial.Name;
+        FilialDescription = filial.Description ?? string.Empty;
+        FilialType = filial.Type;
+
+        // Dastlabki qiymatlarni saqlash
+        _originalFilialName = filial.Name;
+        _originalFilialDescription = filial.Description ?? string.Empty;
+        _originalFilialType = filial.Type;
+    }
+
+    /// <summary>
+    /// Filialni saqlash (FilialAddEditWindow uchun)
+    /// </summary>
+    public async Task<bool> SaveFilialAsync()
+    {
+        try
+        {
+            // Validatsiya
+            if (string.IsNullOrWhiteSpace(FilialName))
+            {
+                _notifier.Show(
+                    "Ogohlantirish",
+                    "Filial nomini kiriting",
+                    NotificationType.Warning);
+                return false;
+            }
+
+            IsBusy = true;
+
+            bool success;
+
+            if (IsEditMode)
+            {
+                // Tahrirlash
+                var request = new FilialUpdateRequest
+                {
+                    Name = FilialName.Trim(),
+                    Description = string.IsNullOrWhiteSpace(FilialDescription) ? null : FilialDescription.Trim(),
+                    Type = FilialType
+                };
+
+                success = await _filialService.UpdateAsync(_editingFilialId, request);
+
+                if (success)
+                {
+                    _logger.LogInformation("Filial tahrirlandi: {Id}", _editingFilialId);
+                    _notifier.Show(
+                        "Muvaffaqiyat",
+                        "Filial muvaffaqiyatli tahrirlandi",
+                        NotificationType.Success);
+                }
+            }
+            else
+            {
+                // Yangi qo'shish
+                var request = new FilialCreateRequest
+                {
+                    Name = FilialName.Trim(),
+                    Description = string.IsNullOrWhiteSpace(FilialDescription) ? null : FilialDescription.Trim(),
+                    Type = FilialType
+                };
+
+                success = await _filialService.CreateAsync(request);
+
+                if (success)
+                {
+                    _logger.LogInformation("Yangi filial qo'shildi: {Name}", FilialName);
+                    _notifier.Show(
+                        "Muvaffaqiyat",
+                        "Filial muvaffaqiyatli qo'shildi",
+                        NotificationType.Success);
+                }
+            }
+
+            if (success)
+            {
+                // Dastlabki qiymatlarni yangilash (yangi saqlangan qiymatlar bilan)
+                _originalFilialName = FilialName;
+                _originalFilialDescription = FilialDescription;
+                _originalFilialType = FilialType;
+
+                await LoadFilialsAsync();
+                return true;
+            }
+            else
+            {
+                _notifier.Show(
+                    "Xatolik",
+                    "Filial saqlanmadi",
+                    NotificationType.Error);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Filialni saqlashda xatolik");
+            _notifier.Show(
+                "Xatolik",
+                $"Xatolik yuz berdi: {ex.Message}",
+                NotificationType.Error);
+            return false;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Dialog'da o'zgarishlar borligini tekshirish (FilialAddEditWindow uchun)
+    /// </summary>
+    public bool HasChanges()
     {
         // Filial nomi o'zgardimi
         if (FilialName?.Trim() != _originalFilialName?.Trim())
@@ -480,6 +505,21 @@ public partial class FilialViewModel : ViewModelBase
             return true;
 
         return false;
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Debounced qidiruv
+    /// </summary>
+    private async Task SearchWithDebounceAsync()
+    {
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+        {
+            await LoadFilialsAsync();
+        });
     }
 
     #endregion

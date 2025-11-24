@@ -1,0 +1,107 @@
+<Window x:Class="Metra.Desktop.Views.Windows.MijozFormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="{Binding Title}"
+        Height="600" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BackgroundColor}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource HeaderColor}" Padding="20,15">
+            <TextBlock Text="{Binding Title}" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Nomi *" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialTextBoxStyle}" Margin="0,0,0,20"/>
+
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Telefon 1 *" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MaterialTextBoxStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Telefon 2" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Phone2, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MaterialTextBoxStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="Manzil" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialTextBoxStyle}" Margin="0,0,0,20"/>
+
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Seriya" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding PassportSeries, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MaterialTextBoxStyle}" MaxLength="2"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Raqam" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding PassportNumber, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MaterialTextBoxStyle}" MaxLength="7"/>
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Text="PNFL" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Pnfl, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialTextBoxStyle}" MaxLength="14" Margin="0,0,0,20"/>
+
+                <TextBlock Text="Izoh" Style="{StaticResource LabelTextStyle}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MultilineTextBoxStyle}"
+                         Height="80" TextWrapping="Wrap" AcceptsReturn="True"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" BorderBrush="{StaticResource BorderColor}"
+                BorderThickness="0,1,0,0" Padding="20,15">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Bekor qilish" Click="CancelButton_Click"
+                        Style="{StaticResource OutlineButtonStyle}"
+                        Width="120" Margin="0,0,10,0"/>
+
+                <Button Click="SaveButton_Click" Style="{StaticResource PrimaryButtonStyle}" Width="120">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" Width="18" Height="18"/>
+                        <TextBlock Text="Saqlash" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Loading -->
+        <Border Grid.RowSpan="3" Background="#80000000"
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressBar IsIndeterminate="True" Width="200" Height="5"/>
+        </Border>
+    </Grid>
+</Window>

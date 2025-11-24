@@ -52,7 +52,7 @@
                     <!-- Search Box -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                         <Button Style="{StaticResource PrimaryButtonStyle}"
-                                Command="{Binding OpenAddDialogCommand}"
+                                Command="{Binding AddFilialCommand}"
                                 Margin="0,0,10,0">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Plus"
@@ -146,8 +146,9 @@
         </Grid>
 
         <!-- Context Menu (O'chirish uchun) -->
-        <Border Background="#80000000"
-                Visibility="{Binding IsContextMenuOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+        <Border x:Name="ContextMenuOverlay"
+                Background="#80000000"
+                Visibility="Collapsed"
                 Panel.ZIndex="999"
                 MouseLeftButtonDown="ContextMenuOverlay_MouseLeftButtonDown">
             <Border Background="{StaticResource BackgroundColor}"
@@ -170,7 +171,6 @@
                     <TextBlock TextWrapping="Wrap"
                                Foreground="{StaticResource TextBoxForegraund}"
                                Margin="0,0,0,20">
-                        <Run Text=""/>
                         <Run Text="{Binding SelectedFilial.Name, Mode=OneWay}" FontWeight="SemiBold"/>
                         <Run Text=" filialini o'chirmoqchimisiz?"/>
                     </TextBlock>
@@ -186,13 +186,13 @@
                         <!-- Bekor qilish -->
                         <Button Grid.Column="0"
                                 Style="{StaticResource OutlineButtonStyle}"
-                                Command="{Binding CloseContextMenuCommand}"
+                                Click="CloseContextMenu_Click"
                                 Content="Bekor qilish"
                                 Height="35"/>
 
                         <!-- O'chirish -->
                         <Button Grid.Column="2"
-                                Command="{Binding DeleteFilialCommand}"
+                                Click="DeleteButton_Click"
                                 Height="35"
                                 Background="#DC3545"
                                 Foreground="White"
@@ -231,117 +231,6 @@
                         </Button>
                     </Grid>
                 </StackPanel>
-            </Border>
-        </Border>
-
-        <!-- Add/Edit Dialog -->
-        <Border Background="#80000000"
-                Visibility="{Binding IsAddEditDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}"
-                Panel.ZIndex="1000">
-            <Border Style="{StaticResource DialogBorderStyle}"
-                    Width="500"
-                    MaxHeight="600"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Dialog Header -->
-                    <Border Grid.Row="0"
-                            Background="{StaticResource HeaderColor}"
-                            CornerRadius="10,10,0,0"
-                            Padding="20,15">
-                        <Grid>
-                            <TextBlock Text="{Binding DialogTitle}"
-                                       Foreground="White"
-                                       FontSize="18"
-                                       FontWeight="SemiBold"/>
-
-                            <Button Style="{StaticResource IconButtonStyle}"
-                                    Command="{Binding CloseDialogCommand}"
-                                    HorizontalAlignment="Right"
-                                    Background="Transparent">
-                                <materialDesign:PackIcon Kind="Close"
-                                                         Width="24" Height="24"
-                                                         Foreground="White"/>
-                            </Button>
-                        </Grid>
-                    </Border>
-
-                    <!-- Dialog Content -->
-                    <ScrollViewer Grid.Row="1"
-                                  VerticalScrollBarVisibility="Auto"
-                                  Padding="20">
-                        <StackPanel>
-                            <!-- Filial nomi -->
-                            <TextBlock Text="Filial nomi *"
-                                       Style="{StaticResource LabelTextStyle}"
-                                       Margin="0,0,0,8"/>
-                            <TextBox Style="{StaticResource MaterialTextBoxStyle}"
-                                     Text="{Binding FilialName, UpdateSourceTrigger=PropertyChanged}"
-                                     materialDesign:HintAssist.Hint="Filial nomini kiriting"
-                                     Margin="0,0,0,20"/>
-
-                            <!-- Filial turi -->
-                            <TextBlock Text="Filial turi *"
-                                       Style="{StaticResource LabelTextStyle}"
-                                       Margin="0,0,0,8"/>
-                            <ComboBox SelectedValue="{Binding FilialType}"
-                                      SelectedValuePath="Tag"
-                                      materialDesign:HintAssist.Hint="Filial turini tanlang"
-                                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                      Margin="0,0,0,20">
-                                <ComboBoxItem Content="Asosiy" Tag="main"/>
-                                <ComboBoxItem Content="Asosiy ombor" Tag="general"/>
-                                <ComboBoxItem Content="Filial" Tag="branch" IsSelected="True"/>
-                                <ComboBoxItem Content="Ombor" Tag="store"/>
-                            </ComboBox>
-
-                            <!-- Ta'rif -->
-                            <TextBlock Text="Ta'rif"
-                                       Style="{StaticResource LabelTextStyle}"
-                                       Margin="0,0,0,8"/>
-                            <TextBox Style="{StaticResource MultilineTextBoxStyle}"
-                                     Text="{Binding FilialDescription, UpdateSourceTrigger=PropertyChanged}"
-                                     materialDesign:HintAssist.Hint="Filial haqida qo'shimcha ma'lumot"
-                                     Height="100"
-                                     TextWrapping="Wrap"
-                                     AcceptsReturn="True"
-                                     VerticalScrollBarVisibility="Auto"/>
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <!-- Dialog Footer -->
-                    <Border Grid.Row="2"
-                            BorderBrush="{StaticResource BorderColor}"
-                            BorderThickness="0,1,0,0"
-                            Padding="20,15">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource OutlineButtonStyle}"
-                                    Command="{Binding CloseDialogCommand}"
-                                    Content="Bekor qilish"
-                                    Margin="0,0,10,0"
-                                    Width="120"/>
-
-                            <Button Style="{StaticResource PrimaryButtonStyle}"
-                                    Command="{Binding SaveFilialCommand}"
-                                    Width="120">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="ContentSave"
-                                                             Width="18" Height="18"
-                                                             VerticalAlignment="Center"/>
-                                    <TextBlock Text="Saqlash"
-                                               Margin="8,0,0,0"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </Grid>
             </Border>
         </Border>
     </Grid>

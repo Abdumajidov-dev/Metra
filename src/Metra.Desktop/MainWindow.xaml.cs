@@ -5,9 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Metra.Desktop;
 
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
 public partial class MainWindow : Window
 {
     private readonly ILogger<MainWindow> _logger;
@@ -16,56 +13,46 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         _logger = logger;
-
-        _logger.LogInformation("MainWindow yaratildi");
-
-        // NavigationListBox SelectionChanged event handler
-        NavigationListBox.SelectionChanged += NavigationListBox_SelectionChanged;
+        _logger.LogInformation("MainWindow ochildi");
     }
 
     private void NavigationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (NavigationListBox.SelectedItem is not ListBoxItem selectedItem)
-            return;
+        if (NavigationListBox.SelectedItem is not ListBoxItem selectedItem) return;
 
-        // Get the text from the ListBoxItem
-        var textBlock = selectedItem.Content as TextBlock;
-        var itemText = textBlock?.Text ?? string.Empty;
+        var text = (selectedItem.Content as TextBlock)?.Text ?? string.Empty;
+        _logger.LogInformation("Navigation: {Text}", text);
 
-        _logger.LogInformation("Navigation: {ItemText}", itemText);
-
-        // Navigate based on selection
-        switch (itemText)
+        switch (text)
         {
-            case "Filiallar":
-                NavigateToPage<Views.Pages.FilialPage>();
+            case "Mijozlar":
+                NavigateTo<Views.Pages.MijozListPage>();
                 break;
-            // TODO: Add more navigation cases here
-            // case "Mijozlar":
-            //     NavigateToPage<Views.Pages.MijozPage>();
-            //     break;
+
+            case "Filiallar":
+                NavigateTo<Views.Pages.FilialPage>();
+                break;
+            case "Materiallar chiqim sababi":
+                break;
+
+
             default:
-                _logger.LogWarning("Navigation not implemented for: {ItemText}", itemText);
+                _logger.LogWarning("Noma'lum sahifa: {Text}", text);
                 break;
         }
     }
 
-    private void NavigateToPage<TPage>() where TPage : UserControl
+    private void NavigateTo<TPage>() where TPage : UserControl
     {
         try
         {
             var page = App.ServiceProvider.GetRequiredService<TPage>();
             ContentArea.Content = page;
-            _logger.LogInformation("Navigated to {PageType}", typeof(TPage).Name);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error navigating to {PageType}", typeof(TPage).Name);
-            MessageBox.Show(
-                $"Sahifa ochishda xatolik: {ex.Message}",
-                "Xatolik",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+            _logger.LogError(ex, "Navigation xatolik");
+            MessageBox.Show($"Xatolik: {ex.Message}", "Xatolik", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
