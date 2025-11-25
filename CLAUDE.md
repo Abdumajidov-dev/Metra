@@ -40,7 +40,10 @@ src/
 │   ├── ViewModels/            # ViewModels with presentation logic
 │   │   ├── Base/
 │   │   │   └── ViewModelBase.cs
-│   │   └── [module ViewModels]
+│   │   ├── Items/            # Entity ViewModels (for DataGrid rows)
+│   │   │   ├── MijozViewModel.cs
+│   │   │   └── FilialViewModel.cs
+│   │   └── [Page ViewModels - e.g., MijozPageViewModel, FilialPageViewModel]
 │   ├── Converters/            # Value converters
 │   │   ├── BoolToVisibilityConverter.cs
 │   │   └── DateTimeConverter.cs
@@ -155,6 +158,32 @@ ViewModelBase provides:
 - Use `AsyncRelayCommand` for async operations
 - Use `ObservableCollection<T>` for collections that need UI updates
 
+**ViewModel Naming Convention (IMPORTANT):**
+- **Entity ViewModels** (single row/item): `{Entity}ViewModel` (e.g., `MijozViewModel`, `FilialViewModel`)
+  - Location: `ViewModels/Items/` folder
+  - Purpose: Wrap DTOs for DataGrid/ListView rows
+  - Pattern:
+    ```csharp
+    public class MijozViewModel : ObservableObject
+    {
+        private readonly MijozResponse _dto;
+        public MijozViewModel(MijozResponse dto, int number) { ... }
+
+        // UI properties
+        public int Number { get; }
+        public string Name => _dto.Name;
+        public string PassportDisplay => /* computed from DTO */;
+
+        // Access to DTO for editing
+        public MijozResponse GetDto() => _dto;
+    }
+    ```
+- **Page ViewModels** (list/collection/page): `{Entity}PageViewModel` (e.g., `MijozPageViewModel`, `FilialPageViewModel`)
+  - Location: `ViewModels/` folder
+  - Purpose: Page logic, collection management, commands
+  - Contains: `ObservableCollection<{Entity}ViewModel>` for DataGrid binding
+- **Why**: Clean MVVM separation - DTO = data, ViewModel = UI logic, testability, UI-specific properties/commands
+
 ### Dependency Injection
 
 **Setup Location**: `src/Metra.Desktop/App.xaml.cs`
@@ -166,21 +195,21 @@ All dependencies are constructor-injected. Service registration in `App.xaml.cs`
 - **HttpClient-based**: All API services (Auth, Mijoz, Filial, etc.) registered via `AddHttpClient<TInterface, TImplementation>()`
 - **Transient**: ViewModels, Views, Pages, Windows
 
-Example ViewModel constructor:
+Example Page ViewModel constructor:
 ```csharp
-public MijozListViewModel(
+public MijozPageViewModel(
     IMijozService mijozService,
-    INavigationService navigationService,
-    ILogger<MijozListViewModel> logger,
+    IServiceProvider serviceProvider,
+    ILogger<MijozPageViewModel> logger,
     NotificationManager notifier)
 {
     _mijozService = mijozService;
-    _navigationService = navigationService;
+    _serviceProvider = serviceProvider;
     _logger = logger;
     _notifier = notifier;
 
-    // Initialize commands
-    LoadCommand = new AsyncRelayCommand(LoadDataAsync);
+    // Initialize with empty collection of entity ViewModels
+    Mijozlar = new ObservableCollection<MijozViewModel>();
 }
 ```
 
@@ -472,13 +501,35 @@ throw new ApplicationException("API xatolik qaytardi");
 
 ### Adding a New Module
 
-1. **Create Service Interface** in `Metra.Application/Services/Interfaces/`
-2. **Implement Service** in `Metra.Application/Services/Implementation/` or dedicated folder
-3. **Create DTOs** in `Metra.Application/DTOs/Requests/` and `Responses/`
-4. **Create ViewModel** in `Metra.Desktop/ViewModels/[Module]/`
-5. **Create View** in `Metra.Desktop/Views/[Module]/`
-6. **Register in DI** in `App.xaml.cs` ConfigureServices()
-7. **Add Navigation** in MainWindow menu
+1. **Create Service Interface** in `Metra.Application/Services/Interfaces/[Base or Malumotlar]/`
+2. **Implement Service** in `Metra.Application/Services/Implementation/[Base or Malumotlar]/`
+3. **Create DTOs** in `Metra.Application/DTOs/Requests/Malumotlar/` and `Responses/Malumotlar/`
+4. **Create Item ViewModel** in `Metra.Desktop/ViewModels/Items/` (wraps Response DTO)
+5. **Create Page ViewModel** in `Metra.Desktop/ViewModels/` (uses ObservableCollection<ItemViewModel>)
+6. **Create View** in `Metra.Desktop/Views/Pages/[Module]/`
+7. **Register in DI** in `App.xaml.cs` ConfigureServices()
+8. **Add Navigation** in MainWindow menu
+
+**Example Item ViewModel Creation:**
+```csharp
+// 1. Create YourItemViewModel in ViewModels/Items/
+public class YourItemViewModel : ObservableObject
+{
+    private readonly YourResponse _dto;
+    public YourItemViewModel(YourResponse dto, int number) { _dto = dto; Number = number; }
+    public int Number { get; }
+    public string Name => _dto.Name;
+    public YourResponse GetDto() => _dto;
+}
+
+// 2. Use in List ViewModel
+public ObservableCollection<YourItemViewModel> Items { get; set; }
+
+// 3. Map DTO → ItemViewModel
+var items = result.Data.Select((dto, index) =>
+    new YourItemViewModel(dto, index + 1)).ToList();
+Items = new ObservableCollection<YourItemViewModel>(items);
+```
 
 ### Testing a Module
 

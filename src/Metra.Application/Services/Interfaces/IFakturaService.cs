@@ -27,7 +27,7 @@ public interface IFakturaService
     /// </summary>
     /// <param name="request">Faktura ma'lumotlari</param>
     /// <returns>Yaratilgan faktura</returns>
-    Task<FakturaResponse?> CreateAsync(FakturaCreateRequest request);
+    Task<FakturaResponse?> CreateAsync(FakturaRequest request);
 
     /// <summary>
     /// Fakturani yangilash

@@ -1,11 +1,11 @@
 using System.Windows.Controls;
-using Metra.Desktop.ViewModels;
+using Metra.Desktop.ViewModels.Malumotlar.MIjozlar;
 
 namespace Metra.Desktop.Views.Pages;
 
 public partial class MijozListPage : UserControl
 {
-    public MijozListPage(MijozListViewModel viewModel)
+    public MijozListPage(MijozPageViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;

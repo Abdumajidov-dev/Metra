@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Metra.Desktop.ViewModels;
+using Metra.Desktop.ViewModels.Malumotlar.Filiallar;
 using Metra.Desktop.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,9 +12,9 @@ namespace Metra.Desktop.Views.Pages;
 /// </summary>
 public partial class FilialPage : UserControl
 {
-    private readonly FilialViewModel _viewModel;
+    private readonly FilialPageViewModel _viewModel;
 
-    public FilialPage(FilialViewModel viewModel)
+    public FilialPage(FilialPageViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
@@ -23,20 +23,23 @@ public partial class FilialPage : UserControl
         Loaded += async (s, e) => await viewModel.InitializeAsync();
     }
 
-    private void AddButton_Click(object sender, RoutedEventArgs e)
-    {
-        _viewModel.PrepareForAdd();
-        var window = new FilialAddEditWindow(_viewModel);
-        window.ShowDialog();
-    }
+
 
     private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
         if (e.ChangedButton == MouseButton.Left && _viewModel.SelectedFilial != null)
         {
-            _viewModel.PrepareForEdit(_viewModel.SelectedFilial);
-            var window = new FilialAddEditWindow(_viewModel);
-            window.ShowDialog();
+            var formVm = App.ServiceProvider.GetRequiredService<FilialViewModel>();
+            var dto = _viewModel.SelectedFilial.GetDto();
+            if (dto != null)
+            {
+                formVm.PrepareForEdit(dto);
+                var window = new FilialAddEditWindow(formVm);
+                if (window.ShowDialog() == true)
+                {
+                    _ = _viewModel.LoadFilialsCommand.ExecuteAsync(null);
+                }
+            }
             e.Handled = true;
         }
     }

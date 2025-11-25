@@ -15,7 +15,8 @@
       "Bash(powershell -Command \"(Get-Content ''src\\Metra.Desktop\\ViewModels\\FilialViewModel.cs'').Count\")",
       "Bash(powershell:*)",
       "Bash(git restore:*)",
-      "Bash(cmd /c \"dir src\\Metra.Desktop\\obj\\Debug\\net8.0-windows\\generated\\CommunityToolkit.Mvvm.SourceGenerators /B /S 2>nul\")"
+      "Bash(cmd /c \"dir src\\Metra.Desktop\\obj\\Debug\\net8.0-windows\\generated\\CommunityToolkit.Mvvm.SourceGenerators /B /S 2>nul\")",
+      "Bash(Select-String \"error|warning\" -Context 0,1)"
     ],
     "deny": [],
     "ask": []

@@ -4,26 +4,27 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Metra.Application.DTOs.Responses.Malumotlar;
 using Metra.Application.Services.Interfaces;
+using Metra.Desktop.ViewModels.Base;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Notification.Wpf;
 
-namespace Metra.Desktop.ViewModels;
+namespace Metra.Desktop.ViewModels.Malumotlar.MIjozlar;
 
 /// <summary>
 /// Mijozlar ro'yxati ViewModel
 /// </summary>
-public partial class MijozListViewModel : ObservableObject
+public partial class MijozPageViewModel : ViewModelBase
 {
     private readonly IMijozService _mijozService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<MijozListViewModel> _logger;
+    private readonly ILogger<MijozPageViewModel> _logger;
     private readonly NotificationManager _notifier;
 
-    public MijozListViewModel(
+    public MijozPageViewModel(
         IMijozService mijozService,
         IServiceProvider serviceProvider,
-        ILogger<MijozListViewModel> logger,
+        ILogger<MijozPageViewModel> logger,
         NotificationManager notifier)
     {
         _mijozService = mijozService;
@@ -33,10 +34,10 @@ public partial class MijozListViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private ObservableCollection<MijozResponse> _mijozlar = new();
+    private ObservableCollection<MijozViewModel> _mijozlar = new();
 
     [ObservableProperty]
-    private MijozResponse? _selectedMijoz;
+    private MijozViewModel? _selectedMijoz;
 
     [ObservableProperty]
     private string _searchText = string.Empty;
@@ -69,10 +70,16 @@ public partial class MijozListViewModel : ObservableObject
 
             if (result != null)
             {
-                for (int i = 0; i < result.Data.Count; i++)
-                    result.Data[i].Number = (CurrentPage - 1) * result.PerPage + i + 1;
+                var items = result.Data.Select((dto, index) =>
+                {
+                    var vm = _serviceProvider.GetRequiredService<MijozViewModel>();
+                    // Initialize for display mode with correct row number
+                    vm.PrepareForEdit(dto); // Load DTO data
+                    vm.Number = (CurrentPage - 1) * result.PerPage + index + 1; // Set row number
+                    return vm;
+                }).ToList();
 
-                Mijozlar = new ObservableCollection<MijozResponse>(result.Data);
+                Mijozlar = new ObservableCollection<MijozViewModel>(items);
                 TotalPages = result.LastPage;
                 TotalCount = result.Total;
             }
@@ -119,7 +126,7 @@ public partial class MijozListViewModel : ObservableObject
     [RelayCommand]
     private void OpenAddDialog()
     {
-        var formVm = _serviceProvider.GetRequiredService<MijozFormViewModel>();
+        var formVm = _serviceProvider.GetRequiredService<MijozViewModel>();
         formVm.PrepareForAdd();
 
         var window = new Views.Windows.MijozFormWindow(formVm);
@@ -136,12 +143,16 @@ public partial class MijozListViewModel : ObservableObject
             return;
         }
 
-        var formVm = _serviceProvider.GetRequiredService<MijozFormViewModel>();
-        formVm.PrepareForEdit(SelectedMijoz);
+        var formVm = _serviceProvider.GetRequiredService<MijozViewModel>();
+        var dto = SelectedMijoz.GetDto();
+        if (dto != null)
+        {
+            formVm.PrepareForEdit(dto);
 
-        var window = new Views.Windows.MijozFormWindow(formVm);
-        if (window.ShowDialog() == true)
-            _ = LoadDataAsync();
+            var window = new Views.Windows.MijozFormWindow(formVm);
+            if (window.ShowDialog() == true)
+                _ = LoadDataAsync();
+        }
     }
 
     [RelayCommand]
@@ -183,7 +194,7 @@ public partial class MijozListViewModel : ObservableObject
         }
     }
 
-    public async Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
         await LoadDataAsync();
     }

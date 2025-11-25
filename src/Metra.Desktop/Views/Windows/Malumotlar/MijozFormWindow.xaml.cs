@@ -1,13 +1,13 @@
 using System.Windows;
-using Metra.Desktop.ViewModels;
+using Metra.Desktop.ViewModels.Malumotlar.MIjozlar;
 
 namespace Metra.Desktop.Views.Windows;
 
 public partial class MijozFormWindow : Window
 {
-    private readonly MijozFormViewModel _viewModel;
+    private readonly MijozViewModel _viewModel;
 
-    public MijozFormWindow(MijozFormViewModel viewModel)
+    public MijozFormWindow(MijozViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;

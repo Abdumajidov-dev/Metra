@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Metra.Desktop.ViewModels;
+using Metra.Desktop.ViewModels.Malumotlar.Filiallar;
 
 namespace Metra.Desktop.Views.Windows;
 
@@ -24,7 +25,7 @@ public partial class FilialAddEditWindow : Window
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        var result = await _viewModel.SaveFilialAsync();
+        var result = await _viewModel.SaveAsync();
         if (result)
         {
             DialogResult = true;

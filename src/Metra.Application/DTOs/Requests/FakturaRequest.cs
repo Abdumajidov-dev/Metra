@@ -3,7 +3,7 @@ namespace Metra.Application.DTOs.Requests;
 /// <summary>
 /// Faktura yaratish uchun request
 /// </summary>
-public class FakturaCreateRequest
+public class FakturaRequest
 {
     public int BranchId { get; set; }
     public int ClientId { get; set; }

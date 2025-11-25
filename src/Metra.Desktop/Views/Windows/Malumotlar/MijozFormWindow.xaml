@@ -89,7 +89,7 @@
                         Style="{StaticResource OutlineButtonStyle}"
                         Width="120" Margin="0,0,10,0"/>
 
-                <Button Click="SaveButton_Click" Style="{StaticResource PrimaryButtonStyle}" Width="120">
+                <Button Content="{Binding SaveCommand}" Style="{StaticResource PrimaryButtonStyle}" Width="120">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="ContentSave" Width="18" Height="18"/>
                         <TextBlock Text="Saqlash" Margin="8,0,0,0"/>

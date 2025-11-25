@@ -159,7 +159,7 @@ public class FakturaService : IFakturaService
     /// <summary>
     /// Yangi faktura yaratish
     /// </summary>
-    public async Task<FakturaResponse?> CreateAsync(FakturaCreateRequest request)
+    public async Task<FakturaResponse?> CreateAsync(FakturaRequest request)
     {
         try
         {

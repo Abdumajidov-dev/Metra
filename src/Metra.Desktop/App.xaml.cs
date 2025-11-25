@@ -138,9 +138,10 @@ public partial class App : System.Windows.Application
 
         // ViewModels
         services.AddTransient<ViewModels.LoginViewModel>();
-        services.AddTransient<ViewModels.FilialViewModel>();
-        services.AddTransient<ViewModels.MijozListViewModel>();
-        services.AddTransient<ViewModels.MijozFormViewModel>();
+        services.AddTransient<ViewModels.Malumotlar.Filiallar.FilialPageViewModel>();
+        services.AddTransient<ViewModels.Malumotlar.Filiallar.FilialViewModel>();
+        services.AddTransient<ViewModels.Malumotlar.MIjozlar.MijozPageViewModel>();
+        services.AddTransient<ViewModels.Malumotlar.MIjozlar.MijozViewModel>();
 
         // Views/Windows - Transient
         services.AddTransient<Views.LoginWindow>();
