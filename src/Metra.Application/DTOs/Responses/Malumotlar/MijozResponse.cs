@@ -1,12 +1,18 @@
 using System.Text.Json.Serialization;
 
-namespace Metra.Application.DTOs.Requests;
+namespace Metra.Application.DTOs.Responses.Malumotlar;
 
 /// <summary>
-/// Mijozni yangilash uchun request
+/// Mijoz response (API'dan kelgan ma'lumot)
 /// </summary>
-public class MijozUpdateRequest
+public class MijozResponse
 {
+    // UI uchun
+    public int Number { get; set; }
+
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
@@ -45,4 +51,29 @@ public class MijozUpdateRequest
 
     [JsonPropertyName("branch_id")]
     public int? BranchId { get; set; }
+
+    [JsonPropertyName("branch_name")]
+    public string? BranchName { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; set; }
+
+    [JsonPropertyName("updated_at")]
+    public DateTime? UpdatedAt { get; set; }
+    [JsonPropertyName("date")]
+    public string Date { get; set; }
+
+    // UI uchun computed properties
+
+    public string PassportDisplay => !string.IsNullOrEmpty(PassportSeries) && !string.IsNullOrEmpty(PassportNumber)
+        ? $"{PassportSeries} {PassportNumber}"
+        : "-";
+
+    public string ImageUrl => !string.IsNullOrEmpty(Image)
+        ? $"http://app.metra-rent.uz/api/public/storage/{Image}"
+        : string.Empty;
+
+    public string ImagePassportUrl => !string.IsNullOrEmpty(ImagePassport)
+        ? $"http://app.metra-rent.uz/api/public/storage/{ImagePassport}"
+        : string.Empty;
 }

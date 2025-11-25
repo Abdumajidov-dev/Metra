@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Metra.Application.DTOs.Requests;
-using Metra.Application.DTOs.Responses;
+using Metra.Application.DTOs.Requests.Malumotlar;
+using Metra.Application.DTOs.Responses.Malumotlar;
 using Metra.Application.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Notification.Wpf;
@@ -109,7 +109,7 @@ public partial class MijozFormViewModel : ObservableObject
             }
             else
             {
-                var request = new MijozCreateRequest
+                var request = new MijozRequest
                 {
                     Name = Name.Trim(),
                     Phone = Phone.Trim(),

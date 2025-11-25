@@ -1,4 +1,4 @@
-namespace Metra.Application.Services.Interfaces;
+namespace Metra.Application.Services.Interfaces.Base;
 
 /// <summary>
 /// Dialog servisi interfeysi

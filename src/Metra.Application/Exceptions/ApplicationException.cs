@@ -1,15 +1,15 @@
-namespace Metra.Domain.Exceptions;
+namespace Metra.Application.Exceptions;
 
 /// <summary>
-/// Bazaviy domain exception
+/// Bazaviy application exception
 /// </summary>
-public abstract class DomainException : Exception
+public abstract class MetraException : Exception
 {
-    protected DomainException(string message) : base(message)
+    protected MetraException(string message) : base(message)
     {
     }
 
-    protected DomainException(string message, Exception innerException) : base(message, innerException)
+    protected MetraException(string message, Exception innerException) : base(message, innerException)
     {
     }
 }
@@ -17,7 +17,7 @@ public abstract class DomainException : Exception
 /// <summary>
 /// Ma'lumot topilmagan exception
 /// </summary>
-public class NotFoundException : DomainException
+public class NotFoundException : MetraException
 {
     public NotFoundException(string message) : base(message)
     {
@@ -32,7 +32,7 @@ public class NotFoundException : DomainException
 /// <summary>
 /// Validation xatoligi exception
 /// </summary>
-public class ValidationException : DomainException
+public class ValidationException : MetraException
 {
     public Dictionary<string, string[]> Errors { get; }
 
@@ -51,7 +51,7 @@ public class ValidationException : DomainException
 /// <summary>
 /// Avtorizatsiya xatoligi exception
 /// </summary>
-public class UnauthorizedException : DomainException
+public class UnauthorizedException : MetraException
 {
     public UnauthorizedException(string message = "Tizimga kirish uchun avtorizatsiya talab qilinadi")
         : base(message)
@@ -62,7 +62,7 @@ public class UnauthorizedException : DomainException
 /// <summary>
 /// Ruxsat etilmagan amal exception
 /// </summary>
-public class ForbiddenException : DomainException
+public class ForbiddenException : MetraException
 {
     public ForbiddenException(string message = "Bu amalni bajarish uchun ruxsat yo'q")
         : base(message)

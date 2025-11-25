@@ -1,7 +1,7 @@
 using Metra.Application.DTOs.Requests;
 using Metra.Application.DTOs.Responses;
 
-namespace Metra.Application.Services.Interfaces;
+namespace Metra.Application.Services.Interfaces.Base;
 
 /// <summary>
 /// Avtorizatsiya servisi interfeysi

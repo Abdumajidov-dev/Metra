@@ -1,7 +1,7 @@
-using Metra.Application.DTOs.Requests;
-using Metra.Application.DTOs.Responses;
+using Metra.Application.DTOs.Requests.Malumotlar;
+using Metra.Application.DTOs.Responses.Malumotlar;
 
-namespace Metra.Application.Services.Interfaces;
+namespace Metra.Application.Services.Interfaces.Malumotlar;
 
 /// <summary>
 /// Filial boshqarish service interface

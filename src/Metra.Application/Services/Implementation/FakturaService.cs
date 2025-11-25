@@ -1,8 +1,9 @@
 using Metra.Application.Configuration;
 using Metra.Application.DTOs.Requests;
 using Metra.Application.DTOs.Responses;
+using Metra.Application.Exceptions;
 using Metra.Application.Services.Interfaces;
-using Metra.Domain.Exceptions;
+using Metra.Application.Services.Interfaces.Base;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

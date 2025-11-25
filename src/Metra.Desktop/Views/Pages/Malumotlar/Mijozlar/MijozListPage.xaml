@@ -90,7 +90,7 @@
                                             HeaderStyle="{StaticResource CustomDataGridColumnHeaderStyle}"/>
                         <DataGridTextColumn Header="Filial" Binding="{Binding BranchName}" Width="150"
                                             HeaderStyle="{StaticResource CustomDataGridColumnHeaderStyle}"/>
-                        <DataGridTextColumn Header="Sana" Binding="{Binding CreatedAt, StringFormat='dd.MM.yyyy'}" Width="150"
+                        <DataGridTextColumn Header="Sana" Binding="{Binding Date, StringFormat='dd.MM.yyyy'}" Width="150"
                                             HeaderStyle="{StaticResource CustomDataGridColumnHeaderStyle}"/>
                     </DataGrid.Columns>
                 </DataGrid>

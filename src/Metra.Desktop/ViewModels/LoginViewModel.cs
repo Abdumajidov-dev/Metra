@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Metra.Application.DTOs.Requests;
-using Metra.Application.Services.Interfaces;
+using Metra.Application.Exceptions;
+using Metra.Application.Services.Interfaces.Base;
 using Metra.Desktop.ViewModels.Base;
 using Metra.Desktop.Views;
-using Metra.Domain.Exceptions;
 using Microsoft.Extensions.Logging;
 using Notification.Wpf;
 using System.Text.RegularExpressions;

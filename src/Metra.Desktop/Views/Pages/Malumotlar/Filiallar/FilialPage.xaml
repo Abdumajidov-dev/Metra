@@ -52,7 +52,7 @@
                     <!-- Search Box -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                         <Button Style="{StaticResource PrimaryButtonStyle}"
-                                Command="{Binding AddFilialCommand}"
+                                Command="{Binding OpenAddDialog}"
                                 Margin="0,0,10,0">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Plus"

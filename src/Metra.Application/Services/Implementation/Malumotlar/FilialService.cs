@@ -1,15 +1,16 @@
 using Metra.Application.Configuration;
-using Metra.Application.DTOs.Requests;
-using Metra.Application.DTOs.Responses;
-using Metra.Application.Services.Interfaces;
-using Metra.Domain.Exceptions;
+using Metra.Application.DTOs.Requests.Malumotlar;
+using Metra.Application.DTOs.Responses.Malumotlar;
+using Metra.Application.Exceptions;
+using Metra.Application.Services.Interfaces.Base;
+using Metra.Application.Services.Interfaces.Malumotlar;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace Metra.Application.Services.Implementation;
+namespace Metra.Application.Services.Implementation.Malumotlar;
 
 /// <summary>
 /// Filial boshqarish service implementatsiyasi

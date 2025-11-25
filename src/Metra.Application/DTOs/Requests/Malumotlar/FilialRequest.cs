@@ -1,4 +1,4 @@
-namespace Metra.Application.DTOs.Requests;
+namespace Metra.Application.DTOs.Requests.Malumotlar;
 
 /// <summary>
 /// Filial yaratish uchun request

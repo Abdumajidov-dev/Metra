@@ -1,5 +1,6 @@
-using Metra.Application.DTOs.Requests;
+using Metra.Application.DTOs.Requests.Malumotlar;
 using Metra.Application.DTOs.Responses;
+using Metra.Application.DTOs.Responses.Malumotlar;
 
 namespace Metra.Application.Services.Interfaces;
 
@@ -26,7 +27,7 @@ public interface IMijozService
     /// <summary>
     /// Yangi mijoz qo'shish
     /// </summary>
-    Task<bool> CreateAsync(MijozCreateRequest request);
+    Task<bool> CreateAsync(MijozRequest request);
 
     /// <summary>
     /// Mijozni yangilash

@@ -6,12 +6,15 @@ using Serilog;
 using AppServices = Metra.Application.Services.Interfaces;
 using Metra.Application.Configuration;
 using Metra.Application.Services.Implementation;
-using Metra.Application.Services.Service;
 using Metra.Infrastructure.Logging;
 using Metra.Infrastructure.Persistence.Settings;
 using Metra.Infrastructure.Services;
 using Notification.Wpf;
 using Syncfusion.Licensing;
+using Metra.Application.Services.Implementation.Malumotlar;
+using Metra.Application.Services.Interfaces.Malumotlar;
+using Metra.Application.Services.Interfaces.Base;
+using Metra.Application.Services.Implementation.Base;
 
 namespace Metra.Desktop;
 
@@ -76,10 +79,10 @@ public partial class App : System.Windows.Application
         services.AddSingleton<AppSettings>();
 
         // Application Services - Singleton
-        services.AddSingleton<AppServices.ITokenService, TokenService>();
+        services.AddSingleton<ITokenService, TokenService>();
 
         // AuthService with HttpClient factory
-        services.AddHttpClient<AppServices.IAuthService, AuthService>(client =>
+        services.AddHttpClient<IAuthService, AuthService>(client =>
         {
             client.BaseAddress = new Uri(ApiConfig.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);
@@ -93,7 +96,7 @@ public partial class App : System.Windows.Application
         });
 
         // FilialService with HttpClient factory
-        services.AddHttpClient<AppServices.IFilialService, FilialService>(client =>
+        services.AddHttpClient<IFilialService, FilialService>(client =>
         {
             client.BaseAddress = new Uri(ApiConfig.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(ApiConfig.TimeoutSeconds);

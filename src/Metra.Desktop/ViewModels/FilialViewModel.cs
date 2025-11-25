@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
-using Metra.Application.DTOs.Requests;
-using Metra.Application.DTOs.Responses;
-using Metra.Application.Services.Interfaces;
+using Metra.Application.DTOs.Requests.Malumotlar;
+using Metra.Application.DTOs.Responses.Malumotlar;
+using Metra.Application.Services.Interfaces.Malumotlar;
 using Metra.Desktop.ViewModels.Base;
 using Microsoft.Extensions.Logging;
 using Notification.Wpf;

@@ -2,12 +2,14 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Metra.Application.Configuration;
-using Metra.Application.DTOs.Requests;
+using Metra.Application.DTOs.Requests.Malumotlar;
 using Metra.Application.DTOs.Responses;
+using Metra.Application.DTOs.Responses.Malumotlar;
 using Metra.Application.Services.Interfaces;
+using Metra.Application.Services.Interfaces.Base;
 using Microsoft.Extensions.Logging;
 
-namespace Metra.Application.Services.Implementation;
+namespace Metra.Application.Services.Implementation.Malumotlar;
 
 /// <summary>
 /// Mijozlar (Clients) service implementation
@@ -153,7 +155,7 @@ public class MijozService : IMijozService
     /// <summary>
     /// Yangi mijoz qo'shish
     /// </summary>
-    public async Task<bool> CreateAsync(MijozCreateRequest request)
+    public async Task<bool> CreateAsync(MijozRequest request)
     {
         try
         {

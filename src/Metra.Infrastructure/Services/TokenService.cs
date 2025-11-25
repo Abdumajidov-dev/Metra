@@ -1,4 +1,4 @@
-using Metra.Application.Services.Interfaces;
+using Metra.Application.Services.Interfaces.Base;
 using Metra.Infrastructure.Persistence.Settings;
 
 namespace Metra.Infrastructure.Services;

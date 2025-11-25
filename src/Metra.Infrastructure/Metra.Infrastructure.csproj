@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Metra.Application\Metra.Application.csproj" />
-    <ProjectReference Include="..\Metra.Domain\Metra.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

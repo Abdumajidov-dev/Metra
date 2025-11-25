@@ -1,15 +1,15 @@
 ﻿using Metra.Application.Configuration;
 using Metra.Application.DTOs.Requests;
 using Metra.Application.DTOs.Responses;
-using Metra.Application.Services.Interfaces;
-using Metra.Domain.Exceptions;
+using Metra.Application.Exceptions;
+using Metra.Application.Services.Interfaces.Base;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace Metra.Application.Services.Service;
+namespace Metra.Application.Services.Implementation.Base;
 
 /// <summary>
 /// Autentifikatsiya servisi

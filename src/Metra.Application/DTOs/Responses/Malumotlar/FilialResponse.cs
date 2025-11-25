@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Metra.Application.DTOs.Responses;
+namespace Metra.Application.DTOs.Responses.Malumotlar;
 
 /// <summary>
 /// Filial response

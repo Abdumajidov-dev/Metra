@@ -4,9 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Metra v3.0 is a rental management system (equipment/materials rental) built as a WPF desktop application using .NET 8 and Clean Architecture principles. This is a complete rewrite of Metra v2.0 with professional architecture standards.
+Metra v3.0 is a rental management system (equipment/materials rental) built as a WPF desktop application using .NET 8 and layered architecture. This is a complete rewrite of Metra v2.0 with professional architecture standards.
 
 **Language**: Uzbek (UI, comments, and variable names use Uzbek/Uzbek transliteration)
+
+**Architecture**: 3-Layer Architecture (Presentation → Application → Infrastructure)
 
 ## Technology Stack
 
@@ -25,7 +27,7 @@ Metra v3.0 is a rental management system (equipment/materials rental) built as a
 
 ## Project Structure
 
-The solution follows Clean Architecture with 4 main layers:
+The solution follows a 3-Layer Architecture:
 
 ```
 src/
@@ -42,28 +44,31 @@ src/
 │   ├── Converters/            # Value converters
 │   │   ├── BoolToVisibilityConverter.cs
 │   │   └── DateTimeConverter.cs
+│   ├── Controls/              # Custom WPF controls
 │   ├── App.xaml.cs           # DI container setup
 │   └── MainWindow.xaml       # Main application window
 │
-├── Metra.Application/         # Application Layer
+├── Metra.Application/         # Application Layer (Business Logic)
 │   ├── Services/
-│   │   ├── Interfaces/       # Service contracts
-│   │   └── Implementation/   # Service implementations
+│   │   ├── Interfaces/
+│   │   │   ├── Base/         # Core service interfaces (Auth, Token, Dialog, Navigation)
+│   │   │   └── Malumotlar/   # Data service interfaces (Mijoz, Filial, etc.)
+│   │   ├── Implementation/
+│   │   │   ├── Base/         # Core service implementations
+│   │   │   └── Malumotlar/   # Data service implementations
+│   │   └── Service/          # Legacy services (being refactored)
 │   ├── DTOs/                 # Data Transfer Objects
 │   │   ├── Requests/
+│   │   │   └── Malumotlar/   # Request DTOs by module
 │   │   └── Responses/
-│   └── Validators/           # Input validation
+│   │       └── Malumotlar/   # Response DTOs by module
+│   ├── Exceptions/           # Application exceptions
+│   │   └── ApplicationException.cs (MetraException base + 4 derived)
+│   ├── Configuration/        # Application configuration
+│   │   └── ApiConfig.cs      # API endpoints and settings
+│   └── Validators/           # Input validation (future use)
 │
-├── Metra.Domain/              # Domain Layer (no dependencies)
-│   ├── Entities/             # Domain models (Mijoz, Filial, etc.)
-│   ├── Enums/                # Business enumerations
-│   │   └── ShartnomStatus.cs (contains ShartnomStatus, TolovTuri, UserRole)
-│   └── Exceptions/           # Custom exceptions
-│       └── DomainException.cs (base + 4 derived exceptions)
-│
-└── Metra.Infrastructure/      # Infrastructure Layer
-    ├── API/
-    │   └── ApiConfig.cs      # API configuration constants
+└── Metra.Infrastructure/      # Infrastructure Layer (External Services)
     ├── Persistence/
     │   └── Settings/
     │       └── AppSettings.cs # JSON-based local settings
@@ -101,16 +106,16 @@ dotnet build src/Metra.Desktop/Metra.Desktop.csproj
 
 ## API Configuration
 
-**Base URL**: `http://app.metra-rent.uz/api/` (note: trailing slash required)
+**Base URL**: `http://app.metra-rent.uz/api/` or `http://10.100.104.104:4001/api/` (development server - note: trailing slash required)
 **Image Base URL**: `http://app.metra-rent.uz/api/public/storage/`
 
 Configuration location: `src/Metra.Application/Configuration/ApiConfig.cs`
 
+**Note**: The BaseUrl in ApiConfig.cs can be toggled between production and development environments by commenting/uncommenting the appropriate line.
+
 All HTTP clients are registered with HttpClientFactory in DI container with a 60-second default timeout.
 
 **Authentication**: Bearer token (JWT) stored in local settings via `ITokenService` (using `AppSettings`).
-
-**Note**: The old `src/Metra.Infrastructure/API/ApiConfig.cs` is deprecated and redirects to the Application layer version.
 
 ## Core Modules
 
@@ -157,9 +162,9 @@ ViewModelBase provides:
 All dependencies are constructor-injected. Service registration in `App.xaml.cs`:
 
 **Service Lifetimes:**
-- **Singleton**: `INavigationService`, `IDialogService`, `ITokenService`, `NotificationManager`, `AppSettings`, most business services
-- **Transient**: ViewModels, Views, Pages
-- **HttpClient**: Registered via `AddHttpClient<TInterface, TImplementation>()` with HttpClientFactory
+- **Singleton**: `ITokenService`, `NotificationManager`, `AppSettings`, infrastructure services
+- **HttpClient-based**: All API services (Auth, Mijoz, Filial, etc.) registered via `AddHttpClient<TInterface, TImplementation>()`
+- **Transient**: ViewModels, Views, Pages, Windows
 
 Example ViewModel constructor:
 ```csharp
@@ -187,8 +192,8 @@ All service methods should:
 3. Never expose stack traces or internal errors to users
 4. Handle `HttpRequestException` separately for network errors
 
-**Available Domain Exceptions** (`src/Metra.Domain/Exceptions/DomainException.cs`):
-- `DomainException` (base class)
+**Available Application Exceptions** (`src/Metra.Application/Exceptions/ApplicationException.cs`):
+- `MetraException` (base class)
 - `NotFoundException` - Entity not found
 - `ValidationException` - Validation failed
 - `UnauthorizedException` - User not authenticated
@@ -253,40 +258,55 @@ catch (Exception ex)
 
 9. **Value Converters** (located in `src/Metra.Desktop/Converters/`):
    - `BoolToVisibilityConverter` - true → Visible, false → Collapsed
-   - `InverseBoolToVisibilityConverter` - true → Collapsed, false → Visible
    - `DateTimeConverter` - DateTime formatting
 
-## Domain Entities and Enums
+## DTOs (Data Transfer Objects)
 
-### Key Entities
+The application uses DTOs for all data exchange between layers and with the API.
 
-**Mijoz (Customer)** - `src/Metra.Domain/Entities/Mijoz.cs`:
-- Properties: Id, Name, Phone, Phone2, Address, PassportSeria, PassportNumber, FilialId, CreatedAt, UpdatedAt
+### Key Response DTOs
 
-**Filial (Branch)** - `src/Metra.Domain/Entities/Filial.cs`:
+**MijozResponse** - `src/Metra.Application/DTOs/Responses/MijozResponse.cs`:
+- Customer information from API
+- Properties: Id, Name, Phone, Phone2, Address, PassportSeria, PassportNumber, Pnfl, Description, WhenGiven, BirthDay, Image, ImagePassport, BranchId, BranchName, CreatedAt, UpdatedAt
+
+**FilialResponse** - `src/Metra.Application/DTOs/Responses/FilialResponse.cs`:
+- Branch information from API
 - Properties: Id, Name, Address, Phone, CreatedAt, UpdatedAt
 
-### Business Enums
+**FakturaResponse** - `src/Metra.Application/DTOs/Responses/FakturaResponse.cs`:
+- Invoice information from API
 
-**Location**: `src/Metra.Domain/Enums/ShartnomStatus.cs`
+### Key Request DTOs
 
-**ShartnomStatus** (Contract Status):
-- Active = 1
-- Cancelled = 2
-- Completed = 3
-- Pending = 4
+**MijozCreateRequest** / **MijozUpdateRequest** - `src/Metra.Application/DTOs/Requests/`:
+- Data for creating/updating customers
 
-**TolovTuri** (Payment Type):
-- Naqd = 1 (Cash)
-- Karta = 2 (Card)
-- BankOtkazmo = 3 (Bank Transfer)
-- Aralash = 4 (Mixed)
+**FilialRequest** - `src/Metra.Application/DTOs/Requests/FilialRequest.cs`:
+- Data for branch operations
 
-**UserRole**:
-- Admin = 1
-- Manager = 2
-- Cashier = 3
-- Warehouseman = 4
+**LoginRequest** - `src/Metra.Application/DTOs/Requests/LoginRequest.cs`:
+- User authentication credentials
+
+## Design Philosophy
+
+**Why No Domain Layer?**
+
+This project intentionally uses a **3-Layer Architecture** instead of Clean Architecture's 4-layer approach:
+
+**Reasons:**
+- ✅ **Simplicity**: CRUD operations don't require complex domain models
+- ✅ **No Duplication**: DTOs already represent all data structures
+- ✅ **API-Driven**: Application consumes external API; no internal business rules
+- ✅ **Maintainability**: Less code to maintain, easier to understand
+
+**When to Use Domain Layer:**
+- Complex business rules and domain logic
+- Rich domain models with behavior
+- Domain-driven design requirements
+- Internal data persistence with ORM
+
+For this rental management system, DTOs + Services provide the right level of abstraction.
 
 ## Migration from v2.0
 
@@ -314,7 +334,13 @@ See `REFACTORING_GUIDE.md` for detailed migration patterns.
 ## Common Patterns
 
 ### Service Interface Pattern
-All services should have an interface in `Services/Interfaces/` and implementation in `Services/Implementation/` or dedicated folder.
+All services are organized by category:
+
+**Application Services:**
+- **Interfaces**: `Metra.Application.Services.Interfaces.Base/` (core) or `.Malumotlar/` (data modules)
+- **Implementations**: `Metra.Application.Services.Implementation.Base/` or `.Malumotlar/`
+
+**Important**: Desktop layer does NOT have its own services - all services live in Application layer.
 
 ### API Response Format Variations
 
@@ -449,11 +475,10 @@ throw new ApplicationException("API xatolik qaytardi");
 1. **Create Service Interface** in `Metra.Application/Services/Interfaces/`
 2. **Implement Service** in `Metra.Application/Services/Implementation/` or dedicated folder
 3. **Create DTOs** in `Metra.Application/DTOs/Requests/` and `Responses/`
-4. **Create Domain Entity** (if needed) in `Metra.Domain/Entities/`
-5. **Create ViewModel** in `Metra.Desktop/ViewModels/[Module]/`
-6. **Create View** in `Metra.Desktop/Views/[Module]/`
-7. **Register in DI** in `App.xaml.cs` ConfigureServices()
-8. **Add Navigation** in MainWindow menu
+4. **Create ViewModel** in `Metra.Desktop/ViewModels/[Module]/`
+5. **Create View** in `Metra.Desktop/Views/[Module]/`
+6. **Register in DI** in `App.xaml.cs` ConfigureServices()
+7. **Add Navigation** in MainWindow menu
 
 ### Testing a Module
 
